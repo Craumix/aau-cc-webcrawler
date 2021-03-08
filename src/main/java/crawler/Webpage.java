@@ -19,7 +19,7 @@ public class Webpage {
     private String pageTitle;
     private int pageCode = 200;
 
-    private boolean doneProcessingWebpage;
+    private Thread pageProcessingThread;
 
     private ArrayList<Webpage> children = new ArrayList<>();
 
@@ -27,9 +27,7 @@ public class Webpage {
         this.url = url;
         this.remainingDepth = remainingDepth;
 
-        new Thread(() -> {
-            doneProcessingWebpage = false;
-
+        pageProcessingThread = new Thread(() -> {
             try {
                 pageDocument = Jsoup.connect(url).get();
                 pageTitle = pageDocument.title();
@@ -50,9 +48,8 @@ public class Webpage {
             }catch (Exception e) {
                 e.printStackTrace();
             }
-
-            doneProcessingWebpage = true;
-        }).start();
+        });
+        pageProcessingThread.start();
     }
 
     private void createChildrenFromPagelinks() throws MalformedURLException {
@@ -60,22 +57,19 @@ public class Webpage {
             String rawLink = link.attr("href");
             if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./"))
                 continue;
-            String childUrl = new URL(new URL(url), link.attr("href")).toString();
+            String childUrl = new URL(new URL(url), rawLink).toString();
             Webpage child = new Webpage(childUrl, remainingDepth - 1);
             children.add(child);
         }
-
-        while (true) {
-            boolean areDone = true;
-            for (Webpage child : children)
-                if(!child.doneProcessingWebpage)
-                    areDone = false;
-            if(areDone)
-                break;
-        }
+        for (Webpage child : children)
+            child.waitForProcessing();
     }
 
-    public boolean doneProcessingWebpage() {
-        return doneProcessingWebpage;
+    public void waitForProcessing() {
+        try {
+            pageProcessingThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
