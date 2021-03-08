@@ -19,6 +19,8 @@ public class Main {
         parseCliOptions(cmd);
 
         Webpage rootPage = new Webpage(rootUrl, maxDepth - 1);
+        rootPage.waitForProcessing();
+        rootPage.printWithChildren();
     }
 
     private static void parseCliOptions(CommandLine cmd) {
