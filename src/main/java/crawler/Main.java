@@ -17,6 +17,8 @@ public class Main {
         }
 
         parseCliOptions(cmd);
+
+        Webpage rootPage = new Webpage(rootUrl, maxDepth - 1);
     }
 
     private static void parseCliOptions(CommandLine cmd) {
