@@ -1,20 +1,27 @@
 package crawler;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 
 public class Webpage {
     private String url;
     private int remainingDepth;
 
     private Document pageDocument;
-    private Elements links;
+    private Elements links, images;
+    private int wordCount;
+    private String pageTitle;
+    private int pageCode = 200;
 
     private boolean doneProcessingWebpage;
+
+    private ArrayList<Webpage> children = new ArrayList<>();
 
     public Webpage(String url, int remainingDepth) {
         this.url = url;
@@ -24,9 +31,23 @@ public class Webpage {
             doneProcessingWebpage = false;
 
             try {
-                fetchWebpage();
-                extractLinks();
-            } catch (IOException e) {
+                pageDocument = Jsoup.connect(url).get();
+                pageTitle = pageDocument.title();
+                links = pageDocument.select("a[href]");
+                images = pageDocument.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
+                wordCount = pageDocument.text().split(" ").length;
+
+                if(remainingDepth > 0)
+                    createChildrenFromPagelinks();
+
+                System.out.println(url);
+                System.out.println("# of Links: " + links.size());
+                System.out.println("# of Images " + images.size());
+                System.out.println("Wordcount: " + wordCount);
+            } catch (HttpStatusException se) {
+                pageCode = se.getStatusCode();
+                se.printStackTrace();
+            }catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -34,12 +55,23 @@ public class Webpage {
         }).start();
     }
 
-    public void fetchWebpage() throws IOException {
-        pageDocument = Jsoup.connect(url).get();
-    }
+    private void createChildrenFromPagelinks() throws MalformedURLException {
+        for(Element link : links) {
+            String rawLink = link.attr("href");
+            if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./"))
+                continue;
+            String childUrl = new URL(new URL(url), link.attr("href")).toString();
+            Webpage child = new Webpage(childUrl, remainingDepth - 1);
+        }
 
-    public void extractLinks() {
-        links = pageDocument.select("a[href]");
+        while (true) {
+            boolean areDone = true;
+            for (Webpage child : children)
+                if(!child.doneProcessingWebpage)
+                    areDone = false;
+            if(areDone)
+                break;
+        }
     }
 
     public boolean doneProcessingWebpage() {
