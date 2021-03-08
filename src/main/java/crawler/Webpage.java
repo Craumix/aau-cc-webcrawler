@@ -62,6 +62,7 @@ public class Webpage {
                 continue;
             String childUrl = new URL(new URL(url), link.attr("href")).toString();
             Webpage child = new Webpage(childUrl, remainingDepth - 1);
+            children.add(child);
         }
 
         while (true) {

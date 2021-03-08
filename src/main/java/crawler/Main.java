@@ -29,7 +29,7 @@ public class Main {
         }
 
         maxDepth = Integer.parseInt(cmd.getOptionValue("max-depth", "2"));
-        if(maxDepth < 1 || maxDepth > 50) {
+        if(maxDepth < 1 || maxDepth > 10) {
             System.err.printf("%d is not a valid search depth", maxDepth);
             System.exit(1);
         }
@@ -39,7 +39,7 @@ public class Main {
 
     private static Options getCliOptions() {
         Options options = new Options();
-        options.addOption("d","max-depth",true, "Specify the recursion depth for following links [1-50]");
+        options.addOption("d","max-depth",true, "Specify the recursion depth for following links [1-10]");
         options.addOption("o","omit-duplicates",true, "Omit duplicate pages");
         options.addOption("u", "url", true, "Specify the root url for the crawler");
         options.addOption("h", "help", false, "Open the help dialog");
