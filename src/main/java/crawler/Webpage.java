@@ -81,15 +81,19 @@ public class Webpage {
     }
 
     private void createChildrenFromPagelinks() throws MalformedURLException {
-        for(int i = 0; i < (links.size()); i++) { //TODO max links
-            String rawLink = links.get(i).attr("href");
+        for(Element link : links) {
+            String rawLink = link.attr("href");
             if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
                 continue;
+
             String childUrl = new URL(new URL(url), rawLink).toString();
             if(!(pageUrlLog.contains(childUrl) && Main.shouldOmitDuplicates())) {
                 Webpage child = new Webpage(childUrl, remainingDepth - 1);
                 children.add(child);
             }
+
+            if (children.size() >= Main.getMaxLinksPerPage())
+                break;
         }
     }
 

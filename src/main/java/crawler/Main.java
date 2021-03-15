@@ -9,15 +9,14 @@ import java.util.concurrent.*;
 
 public class Main {
     private static String rootUrl, outputFile;
-    private static int maxDepth, threadCount;
+    private static int maxDepth, threadCount, maxLinksPerPage;
     private static boolean omitDuplicates;
 
     public static void main(String[] args) throws Exception {
         Options cliOptions = getCliOptions();
         CommandLine cmd = new DefaultParser().parse(cliOptions, args);
 
-        if (parseCliOptions(cmd, cliOptions))
-            System.exit(0);
+        parseCliOptions(cmd, cliOptions);
 
         ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
 
@@ -39,10 +38,10 @@ public class Main {
         rootPage.printWithChildren(programOutput);
     }
 
-    private static boolean parseCliOptions(CommandLine cmd, Options cliOptions) {
+    private static void parseCliOptions(CommandLine cmd, Options cliOptions) {
         if(cmd.hasOption("help") || !cmd.hasOption("url")) {
             new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
-             return true;
+            System.exit(0);
         }
 
         rootUrl = cmd.getOptionValue("url");
@@ -63,10 +62,14 @@ public class Main {
             System.exit(1);
         }
 
+        maxLinksPerPage = Integer.parseInt(cmd.getOptionValue("max-links", "1000"));
+        if(maxLinksPerPage < 1) {
+            System.err.printf("Max links to follow should be > 1");
+            System.exit(1);
+        }
+
         omitDuplicates = cmd.hasOption("omit-duplicates");
         outputFile = cmd.getOptionValue("output","");
-
-        return false;
     }
 
     private static Options getCliOptions() {
@@ -76,7 +79,7 @@ public class Main {
         options.addOption("u", "url", true, "Specify the root url for the crawler");
         options.addOption("o", "output", true, "Output file can be specified as alternative to stdout");
         options.addOption("t", "threads", true, "How many threads to use, will increase CPU and Memory consumption. Default: 2, Range 1-1024");
-        options.addOption("l", "max-links", true, "Max links to follow per page");
+        options.addOption("l", "max-links", true, "Max links to follow per page. Default: 1000, Range: 1-2147483647");
         options.addOption("h", "help", false, "Open the help dialog");
         return options;
     }
@@ -87,5 +90,9 @@ public class Main {
 
     public static boolean shouldOmitDuplicates() {
         return omitDuplicates;
+    }
+
+    public static int getMaxLinksPerPage() {
+        return maxLinksPerPage;
     }
 }
