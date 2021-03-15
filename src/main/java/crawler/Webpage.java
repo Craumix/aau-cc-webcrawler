@@ -69,7 +69,7 @@ public class Webpage {
         out.println(offset + "# of Images: \t" + images.size());
         out.println(offset + "# of Videos: \t" + videos.size());
         out.println(offset + "Wordcount: \t" + wordCount);
-        out.println(offset + "Pagesize: \t" + readableFileSize(pageSize));
+        out.println(offset + "Pagesize: \t" + FormattingUtil.readableFileSize(pageSize));
         for(Webpage child : children)
             child.printWithChildren(offset + "  ", out);
     }
@@ -88,12 +88,5 @@ public class Webpage {
     private void freePageDocumentMemory() {
         pageDocument = null;
         System.gc();
-    }
-
-    public static String readableFileSize(long size) {
-        if(size <= 0) return "0";
-        final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
-        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
-        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 }
