@@ -65,11 +65,12 @@ public class Webpage {
         printWithChildren("", out);
     }
     public void printWithChildren(String offset, PrintStream out) {
-        out.println(offset + url + " - " + pageTitle);
+        out.println(offset + url);
         if(error != null) {
             System.out.println(offset + "Error: " + error.getMessage());
             return;
         }
+        out.println(offset + "Title: \t" + pageTitle);
         out.println(offset + "# of Links: \t" + links.size());
         out.println(offset + "# of Images: \t" + images.size());
         out.println(offset + "# of Videos: \t" + videos.size());
@@ -80,8 +81,8 @@ public class Webpage {
     }
 
     private void createChildrenFromPagelinks() throws MalformedURLException {
-        for(Element link : links) {
-            String rawLink = link.attr("href");
+        for(int i = 0; i < (links.size()); i++) { //TODO max links
+            String rawLink = links.get(i).attr("href");
             if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
                 continue;
             String childUrl = new URL(new URL(url), rawLink).toString();

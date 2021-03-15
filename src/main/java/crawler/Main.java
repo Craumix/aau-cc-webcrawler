@@ -71,11 +71,11 @@ public class Main {
 
     private static Options getCliOptions() {
         Options options = new Options();
-        options.addOption("d","max-depth",true, "Specify the recursion depth for following links [1-10]");
+        options.addOption("d","max-depth",true, "Specify the recursion depth for following links. Default: 2, Range 1-10");
         options.addOption("s","omit-duplicates",false, "If set omits duplicate pages");
         options.addOption("u", "url", true, "Specify the root url for the crawler");
         options.addOption("o", "output", true, "Output file can be specified as alternative to stdout");
-        options.addOption("t", "threads", true, "How many threads to use, will increase CPU and Memory consumption [1-1024]");
+        options.addOption("t", "threads", true, "How many threads to use, will increase CPU and Memory consumption. Default: 2, Range 1-1024");
         options.addOption("l", "max-links", true, "Max links to follow per page");
         options.addOption("h", "help", false, "Open the help dialog");
         return options;
