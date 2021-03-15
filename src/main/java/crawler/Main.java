@@ -20,8 +20,7 @@ public class Main {
         parseCliOptions(cmd, cliOptions);
 
         ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
-
-        Webpage rootPage = new Webpage(rootUrl, maxDepth - 1);
+        Webpage rootPage = new Webpage(rootUrl, maxDepth);
         rootPage.runOnThreadPool(threadPool);
         ThreadingUtil.waitUntilPoolEmptyAndTerminated(threadPool);
 

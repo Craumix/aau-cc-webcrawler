@@ -15,6 +15,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class Webpage {
 
+    private static final String REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+
     private static CopyOnWriteArrayList<String> pageUrlLog = new CopyOnWriteArrayList<>();
 
     private String url;
@@ -23,15 +25,15 @@ public class Webpage {
     private Document pageDocument;
     private Elements links, images, videos;
     private int wordCount;
-    private long pageSize;
+    private long pageSize, loadTimeInNanos;
     private String pageTitle;
     private Exception error;
 
     private ArrayList<Webpage> children = new ArrayList<>();
 
-    public Webpage(String url, int remainingDepth) {
+    public Webpage(String url, int depth) {
         this.url = url;
-        this.remainingDepth = remainingDepth;
+        this.remainingDepth = depth - 1;
 
         pageUrlLog.add(url);
     }
@@ -39,7 +41,10 @@ public class Webpage {
     public void runOnThreadPool(ThreadPoolExecutor threadPool) {
         threadPool.execute(() -> {
             try {
-                pageDocument = Jsoup.connect(url).get();
+                long startTime = System.nanoTime();
+                pageDocument = Jsoup.connect(url).userAgent(REQUEST_USER_AGENT).get();
+                loadTimeInNanos = System.nanoTime() - startTime;
+
                 pageTitle = pageDocument.title();
                 links = pageDocument.select("a[href]");
                 images = pageDocument.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
@@ -70,14 +75,17 @@ public class Webpage {
             System.out.println(offset + "Error: " + error.getMessage());
             return;
         }
+
+        double bytesPerSecond = pageSize / (loadTimeInNanos / 1e9);
+
         out.println(offset + "Title: \t" + pageTitle);
-        out.println(offset + "# of Links: \t" + links.size());
-        out.println(offset + "# of Images: \t" + images.size());
-        out.println(offset + "# of Videos: \t" + videos.size());
+        out.println(offset + "Links: \t\t" + links.size());
+        out.println(offset + "Images: \t" + images.size());
+        out.println(offset + "Videos: \t" + videos.size());
         out.println(offset + "Wordcount: \t" + wordCount);
-        out.println(offset + "Pagesize: \t" + FormattingUtil.readableFileSize(pageSize));
+        out.println(offset + String.format("Loading: \t%s in %.2fms ( @ %s/s)", FormattingUtil.readableFileSize(pageSize), (loadTimeInNanos / 1e6), FormattingUtil.readableFileSize(bytesPerSecond)));
         for(Webpage child : children)
-            child.printWithChildren(offset + "  ", out);
+            child.printWithChildren(offset + "\t", out);
     }
 
     private void createChildrenFromPagelinks() throws MalformedURLException {
@@ -88,7 +96,7 @@ public class Webpage {
 
             String childUrl = new URL(new URL(url), rawLink).toString();
             if(!(pageUrlLog.contains(childUrl) && Main.shouldOmitDuplicates())) {
-                Webpage child = new Webpage(childUrl, remainingDepth - 1);
+                Webpage child = new Webpage(childUrl, remainingDepth);
                 children.add(child);
             }
 

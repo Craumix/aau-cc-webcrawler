@@ -3,6 +3,9 @@ package crawler;
 import java.text.DecimalFormat;
 
 public class FormattingUtil {
+    public static String readableFileSize(double size) {
+        return readableFileSize((long) size);
+    }
     public static String readableFileSize(long size) {
         if(size <= 0) return "0";
         final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
