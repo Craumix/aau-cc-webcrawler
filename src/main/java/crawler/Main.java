@@ -16,12 +16,8 @@ public class Main {
         Options cliOptions = getCliOptions();
         CommandLine cmd = new DefaultParser().parse(cliOptions, args);
 
-        if(cmd.hasOption("help") || !cmd.hasOption("url")) {
-            new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
+        if (parseCliOptions(cmd, cliOptions))
             System.exit(0);
-        }
-
-        parseCliOptions(cmd);
 
         ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
 
@@ -43,7 +39,12 @@ public class Main {
         rootPage.printWithChildren(programOutput);
     }
 
-    private static void parseCliOptions(CommandLine cmd) {
+    private static boolean parseCliOptions(CommandLine cmd, Options cliOptions) {
+        if(cmd.hasOption("help") || !cmd.hasOption("url")) {
+            new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
+             return true;
+        }
+
         rootUrl = cmd.getOptionValue("url");
         if(!isValidHttpUrl(rootUrl)) {
             System.err.printf("\"%s\" is not a valid Http URL!", rootUrl);
@@ -64,6 +65,8 @@ public class Main {
 
         omitDuplicates = Boolean.parseBoolean(cmd.getOptionValue("omit-duplicates", "false"));
         outputFile = cmd.getOptionValue("output","");
+
+        return false;
     }
 
     private static Options getCliOptions() {
