@@ -5,11 +5,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Webpage {
     private String url;
@@ -22,15 +26,15 @@ public class Webpage {
     private String pageTitle;
     private Exception error;
 
-    private Thread pageProcessingThread;
-
     private ArrayList<Webpage> children = new ArrayList<>();
 
     public Webpage(String url, int remainingDepth) {
         this.url = url;
         this.remainingDepth = remainingDepth;
+    }
 
-        pageProcessingThread = new Thread(() -> {
+    public void runOnThreadPool(ThreadPoolExecutor threadPool) {
+        threadPool.execute(() -> {
             try {
                 pageDocument = Jsoup.connect(url).get();
                 pageTitle = pageDocument.title();
@@ -39,31 +43,37 @@ public class Webpage {
                 videos = pageDocument.select("video");
                 wordCount = pageDocument.text().split(" ").length;
                 pageSize = pageDocument.html().getBytes(StandardCharsets.UTF_8).length;
-                if(remainingDepth > 0)
+
+                freePageDocumentMemory();
+
+                if(remainingDepth > 0) {
                     createChildrenFromPagelinks();
+                    for (Webpage child : children)
+                        child.runOnThreadPool(threadPool);
+                }
+
             } catch (Exception e) {
                 error = e;
             }
         });
-        pageProcessingThread.start();
     }
 
-    public void printWithChildren() {
-        printWithChildren("");
+    public void printWithChildren(PrintStream out) {
+        printWithChildren("", out);
     }
-    public void printWithChildren(String offset) {
-        System.out.println(offset + url + " - " + pageTitle);
+    public void printWithChildren(String offset, PrintStream out) {
+        out.println(offset + url + " - " + pageTitle);
         if(error != null) {
             System.out.println(offset + "Error: " + error.getMessage());
             return;
         }
-        System.out.println(offset + "# of Links: \t" + links.size());
-        System.out.println(offset + "# of Images: \t" + images.size());
-        System.out.println(offset + "# of Videos: \t" + videos.size());
-        System.out.println(offset + "Wordcount: \t" + wordCount);
-        System.out.println(offset + "Pagesize: \t" + readableFileSize(pageSize));
+        out.println(offset + "# of Links: \t" + links.size());
+        out.println(offset + "# of Images: \t" + images.size());
+        out.println(offset + "# of Videos: \t" + videos.size());
+        out.println(offset + "Wordcount: \t" + wordCount);
+        out.println(offset + "Pagesize: \t" + readableFileSize(pageSize));
         for(Webpage child : children)
-            child.printWithChildren(offset + "  ");
+            child.printWithChildren(offset + "  ", out);
     }
 
     private void createChildrenFromPagelinks() throws MalformedURLException {
@@ -75,19 +85,12 @@ public class Webpage {
             Webpage child = new Webpage(childUrl, remainingDepth - 1);
             children.add(child);
         }
-
-        for (Webpage child : children)
-            child.waitForProcessing();
     }
 
-    public void waitForProcessing() {
-        try {
-            pageProcessingThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    private void freePageDocumentMemory() {
+        pageDocument = null;
+        System.gc();
     }
-
 
     public static String readableFileSize(long size) {
         if(size <= 0) return "0";

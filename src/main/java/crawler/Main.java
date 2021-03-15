@@ -2,9 +2,14 @@ package crawler;
 
 import org.apache.commons.cli.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.*;
+
 public class Main {
-    private static String rootUrl;
-    private static int maxDepth;
+    private static String rootUrl, outputFile;
+    private static int maxDepth, threadCount;
     private static boolean omitDuplicates;
 
     public static void main(String[] args) throws Exception {
@@ -18,9 +23,24 @@ public class Main {
 
         parseCliOptions(cmd);
 
+        ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
+
         Webpage rootPage = new Webpage(rootUrl, maxDepth - 1);
-        rootPage.waitForProcessing();
-        rootPage.printWithChildren();
+        rootPage.runOnThreadPool(threadPool);
+
+        while (threadPool.getActiveCount() > 0)
+            Thread.sleep(50);
+
+        threadPool.shutdown();
+        threadPool.awaitTermination(30, TimeUnit.SECONDS);
+
+        PrintStream programOutput;
+        if(outputFile.equals(""))
+            programOutput = System.out;
+        else
+            programOutput = new PrintStream(new FileOutputStream(new File(outputFile), false));
+
+        rootPage.printWithChildren(programOutput);
     }
 
     private static void parseCliOptions(CommandLine cmd) {
@@ -36,19 +56,29 @@ public class Main {
             System.exit(1);
         }
 
+        threadCount = Integer.parseInt(cmd.getOptionValue("threads", "2"));
+        if(threadCount < 1 || threadCount > 1024) {
+            System.err.printf("%d is not a valid Thread count", threadCount);
+            System.exit(1);
+        }
+
         omitDuplicates = Boolean.parseBoolean(cmd.getOptionValue("omit-duplicates", "false"));
+        outputFile = cmd.getOptionValue("output","");
     }
 
     private static Options getCliOptions() {
         Options options = new Options();
         options.addOption("d","max-depth",true, "Specify the recursion depth for following links [1-10]");
-        options.addOption("o","omit-duplicates",true, "Omit duplicate pages");
+        options.addOption("s","omit-duplicates",true, "Omit duplicate pages");
         options.addOption("u", "url", true, "Specify the root url for the crawler");
+        options.addOption("o", "output", true, "Output file can be specified as alternative to stdout");
+        options.addOption("t", "threads", true, "How many threads to use, will increase CPU and Memory consumption [1-1024]");
+        options.addOption("l", "max-links", true, "Max links to follow per page");
         options.addOption("h", "help", false, "Open the help dialog");
         return options;
     }
 
     public static boolean isValidHttpUrl(String url) {
-        return url.matches("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+        return url.matches("https?:\\/\\/?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
     }
 }
