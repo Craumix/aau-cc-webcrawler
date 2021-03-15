@@ -63,7 +63,7 @@ public class Main {
             System.exit(1);
         }
 
-        omitDuplicates = Boolean.parseBoolean(cmd.getOptionValue("omit-duplicates", "false"));
+        omitDuplicates = cmd.hasOption("omit-duplicates");
         outputFile = cmd.getOptionValue("output","");
 
         return false;
@@ -72,7 +72,7 @@ public class Main {
     private static Options getCliOptions() {
         Options options = new Options();
         options.addOption("d","max-depth",true, "Specify the recursion depth for following links [1-10]");
-        options.addOption("s","omit-duplicates",true, "Omit duplicate pages");
+        options.addOption("s","omit-duplicates",false, "If set omits duplicate pages");
         options.addOption("u", "url", true, "Specify the root url for the crawler");
         options.addOption("o", "output", true, "Output file can be specified as alternative to stdout");
         options.addOption("t", "threads", true, "How many threads to use, will increase CPU and Memory consumption [1-1024]");
@@ -83,5 +83,9 @@ public class Main {
 
     public static boolean isValidHttpUrl(String url) {
         return url.matches("https?:\\/\\/?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+    }
+
+    public static boolean shouldOmitDuplicates() {
+        return omitDuplicates;
     }
 }

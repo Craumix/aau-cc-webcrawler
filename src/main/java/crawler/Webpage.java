@@ -9,11 +9,14 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Webpage {
+
+    private static CopyOnWriteArrayList<String> pageUrlLog = new CopyOnWriteArrayList<>();
+
     private String url;
     private int remainingDepth;
 
@@ -29,6 +32,8 @@ public class Webpage {
     public Webpage(String url, int remainingDepth) {
         this.url = url;
         this.remainingDepth = remainingDepth;
+
+        pageUrlLog.add(url);
     }
 
     public void runOnThreadPool(ThreadPoolExecutor threadPool) {
@@ -80,8 +85,10 @@ public class Webpage {
             if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
                 continue;
             String childUrl = new URL(new URL(url), rawLink).toString();
-            Webpage child = new Webpage(childUrl, remainingDepth - 1);
-            children.add(child);
+            if(!(pageUrlLog.contains(childUrl) && Main.shouldOmitDuplicates())) {
+                Webpage child = new Webpage(childUrl, remainingDepth - 1);
+                children.add(child);
+            }
         }
     }
 
