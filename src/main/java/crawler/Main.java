@@ -17,19 +17,13 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Options cliOptions = getCliOptions();
         CommandLine cmd = new DefaultParser().parse(cliOptions, args);
-
         parseCliOptions(cmd, cliOptions);
 
         ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
 
         Webpage rootPage = new Webpage(rootUrl, maxDepth - 1);
         rootPage.runOnThreadPool(threadPool);
-
-        while (threadPool.getActiveCount() > 0)
-            Thread.sleep(50);
-
-        threadPool.shutdown();
-        threadPool.awaitTermination(30, TimeUnit.SECONDS);
+        ThreadingUtil.waitUntilPoolEmptyAndTerminated(threadPool);
 
         PrintStream programOutput;
         if(outputFile.equals(""))
