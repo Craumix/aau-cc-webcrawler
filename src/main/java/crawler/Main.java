@@ -45,6 +45,10 @@ public class Main {
         }
 
         rootUrl = cmd.getOptionValue("url");
+        if(!rootUrl.contains("://")) {
+            System.out.println("No URL scheme given, assuming http...");
+            rootUrl = "http://" + rootUrl;
+        }
         if(!isValidHttpUrl(rootUrl)) {
             System.err.printf("\"%s\" is not a valid Http URL!", rootUrl);
             System.exit(1);
