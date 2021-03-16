@@ -7,6 +7,8 @@ import org.jsoup.select.Elements;
 
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -17,9 +19,9 @@ public class Webpage {
 
     private static final String REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
 
-    private static CopyOnWriteArrayList<String> pageUrlLog = new CopyOnWriteArrayList<>();
+    private static CopyOnWriteArrayList<URI> pageUrlLog = new CopyOnWriteArrayList<>();
 
-    private String url;
+    private URI pageURI;
     private int remainingDepth;
 
     private Document pageDocument;
@@ -31,18 +33,21 @@ public class Webpage {
 
     private ArrayList<Webpage> children = new ArrayList<>();
 
-    public Webpage(String url, int depth) {
-        this.url = url;
+    public Webpage(String pageURL, int depth) throws URISyntaxException {
+        this(new URI(pageURL), depth);
+    }
+    public Webpage(URI pageURL, int depth) {
+        this.pageURI = pageURL;
         this.remainingDepth = depth - 1;
 
-        pageUrlLog.add(url);
+        pageUrlLog.add(pageURL);
     }
 
     public void runOnThreadPool(ThreadPoolExecutor threadPool) {
         threadPool.execute(() -> {
             try {
                 long startTime = System.nanoTime();
-                pageDocument = Jsoup.connect(url).userAgent(REQUEST_USER_AGENT).get();
+                pageDocument = Jsoup.connect(pageURI.toString()).userAgent(REQUEST_USER_AGENT).get();
                 loadTimeInNanos = System.nanoTime() - startTime;
 
                 pageTitle = pageDocument.title();
@@ -70,7 +75,7 @@ public class Webpage {
         printWithChildren("", out);
     }
     public void printWithChildren(String offset, PrintStream out) {
-        out.println(offset + url);
+        out.println(offset + pageURI.toString());
         if(error != null) {
             System.out.println(offset + "Error: " + error.getMessage());
             return;
@@ -78,7 +83,7 @@ public class Webpage {
 
         double bytesPerSecond = pageSize / (loadTimeInNanos / 1e9);
 
-        out.println(offset + "Title: \t" + pageTitle);
+        out.println(offset + "Title: \t\t" + pageTitle);
         out.println(offset + "Links: \t\t" + links.size());
         out.println(offset + "Images: \t" + images.size());
         out.println(offset + "Videos: \t" + videos.size());
@@ -88,15 +93,17 @@ public class Webpage {
             child.printWithChildren(offset + "\t", out);
     }
 
-    private void createChildrenFromPagelinks() throws MalformedURLException {
+    private void createChildrenFromPagelinks() throws URISyntaxException {
         for(Element link : links) {
-            String rawLink = link.attr("href");
-            if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
-                continue;
+            URI rawURI = new URI(link.attr("href"));
+            //if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
+            //    continue;
 
-            String childUrl = new URL(new URL(url), rawLink).toString();
-            if(!(pageUrlLog.contains(childUrl) && Main.shouldOmitDuplicates())) {
-                Webpage child = new Webpage(childUrl, remainingDepth);
+            URI resolvedChildURI = pageURI.resolve(rawURI);
+            if(resolvedChildURI.equals(pageURI))
+                continue;
+            if(!(pageUrlLog.contains(resolvedChildURI) && Main.shouldOmitDuplicates())) {
+                Webpage child = new Webpage(resolvedChildURI, remainingDepth);
                 children.add(child);
             }
 
