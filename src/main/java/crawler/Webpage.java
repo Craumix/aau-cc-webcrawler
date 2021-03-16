@@ -114,6 +114,5 @@ public class Webpage {
 
     private void freePageDocumentMemory() {
         pageDocument = null;
-        System.gc();
     }
 }
