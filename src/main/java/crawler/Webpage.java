@@ -33,14 +33,14 @@ public class Webpage {
 
     private ArrayList<Webpage> children = new ArrayList<>();
 
-    public Webpage(String pageURL, int depth) throws URISyntaxException {
-        this(new URI(pageURL), depth);
+    public Webpage(String pageURI, int depth) throws URISyntaxException {
+        this(new URI(pageURI), depth);
     }
-    public Webpage(URI pageURL, int depth) {
-        this.pageURI = pageURL;
+    public Webpage(URI pageURI, int depth) {
+        this.pageURI = pageURI;
         this.remainingDepth = depth - 1;
 
-        pageUrlLog.add(pageURL);
+        pageUrlLog.add(pageURI);
     }
 
     public void runOnThreadPool(ThreadPoolExecutor threadPool) {
