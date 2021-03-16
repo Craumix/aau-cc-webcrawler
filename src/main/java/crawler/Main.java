@@ -17,7 +17,11 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Options cliOptions = getCliOptions();
         CommandLine cmd = new DefaultParser().parse(cliOptions, args);
-        parseCliOptions(cmd, cliOptions);
+
+        if(helpRequested(cmd, cliOptions))
+            System.exit(0);
+        if(!parseCliOptions(cmd))
+            System.exit(1);
 
         ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
         Webpage rootPage = new Webpage(rootUrl, maxDepth);
@@ -33,12 +37,15 @@ public class Main {
         rootPage.printWithChildren(programOutput);
     }
 
-    private static void parseCliOptions(CommandLine cmd, Options cliOptions) {
+    private static boolean helpRequested(CommandLine cmd, Options cliOptions) {
         if(cmd.hasOption("help") || !cmd.hasOption("url")) {
             new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
-            System.exit(0);
+            return true;
         }
+        return false;
+    }
 
+    private static boolean parseCliOptions(CommandLine cmd) {
         rootUrl = cmd.getOptionValue("url");
         if(!rootUrl.contains("://")) {
             System.out.println("No URL scheme given, assuming http...");
@@ -46,29 +53,31 @@ public class Main {
         }
         if(!isValidHttpUrl(rootUrl)) {
             System.err.printf("\"%s\" is not a valid Http URL!", rootUrl);
-            System.exit(1);
+            return false;
         }
 
         maxDepth = Integer.parseInt(cmd.getOptionValue("max-depth", DEFAULT_MAX_DEPTH + ""));
         if(maxDepth < 1 || maxDepth > 10) {
             System.err.printf("%d is not a valid search depth", maxDepth);
-            System.exit(1);
+            return false;
         }
 
         threadCount = Integer.parseInt(cmd.getOptionValue("threads", DEFAULT_THREAD_COUNT + ""));
         if(threadCount < 1 || threadCount > 1024) {
             System.err.printf("%d is not a valid Thread count", threadCount);
-            System.exit(1);
+            return false;
         }
 
         maxLinksPerPage = Integer.parseInt(cmd.getOptionValue("max-links", DEFAULT_MAX_LINKS_PER_PAGE + ""));
         if(maxLinksPerPage < 1) {
             System.err.printf("Max links to follow should be > 1");
-            System.exit(1);
+            return false;
         }
 
         omitDuplicates = cmd.hasOption("omit-duplicates");
         outputFile = cmd.getOptionValue("output","");
+
+        return true;
     }
 
     private static Options getCliOptions() {
