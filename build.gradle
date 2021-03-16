@@ -22,5 +22,5 @@ test {
 }
 
 application {
-    mainClassName = "crawler.Main"
+    mainClass = "crawler.Main"
 }
