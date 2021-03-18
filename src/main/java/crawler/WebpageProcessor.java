@@ -7,9 +7,13 @@ import org.jsoup.nodes.Element;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class WebpageProcessor {
+
+    private final String REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+    private static CopyOnWriteArrayList<URI> pageUrlLog = new CopyOnWriteArrayList<>();
 
     private final Webpage webpage;
     private final int remainingDepth;
@@ -23,7 +27,7 @@ public class WebpageProcessor {
         threadPool.execute(() -> {
             try {
                 long startTime = System.nanoTime();
-                Document pageDocument = Jsoup.connect(webpage.getPageURI().toString()).userAgent(webpage.getRequestUserAgent()).get();
+                Document pageDocument = Jsoup.connect(webpage.getPageURI().toString()).userAgent(REQUEST_USER_AGENT).get();
 
                 webpage.setLoadTimeInNanos(System.nanoTime() - startTime);
 
@@ -37,6 +41,7 @@ public class WebpageProcessor {
                 if(remainingDepth > 0) {
                     createChildrenFromPagelinks();
                     for (Webpage child : webpage.getChildren()) {
+                        pageUrlLog.add(child.getPageURI());
                         new WebpageProcessor(child, remainingDepth).runOnThreadPool(threadPool);
                     }
                 }
@@ -56,7 +61,7 @@ public class WebpageProcessor {
             URI resolvedChildURI = webpage.getPageURI().resolve(rawURI);
             if(resolvedChildURI.equals(webpage.getPageURI()))
                 continue;
-            if(!(Webpage.getPageUrlLog().contains(resolvedChildURI) && Main.shouldOmitDuplicates())) {
+            if(!(pageUrlLog.contains(resolvedChildURI) && Main.shouldOmitDuplicates())) {
                 Webpage child = new Webpage(resolvedChildURI);
                 webpage.addChild(child);
             }

@@ -1,19 +1,13 @@
 package crawler;
 
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Webpage {
-
-    private final String REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
-
-    private static CopyOnWriteArrayList<URI> pageUrlLog = new CopyOnWriteArrayList<>();
 
     private final URI pageURI;
 
@@ -21,6 +15,7 @@ public class Webpage {
     private int wordCount;
     private long pageSize, loadTimeInNanos;
     private String pageTitle;
+
     private Exception error;
 
     private ArrayList<Webpage> children = new ArrayList<>();
@@ -28,15 +23,15 @@ public class Webpage {
     public Webpage(String pageURI) throws URISyntaxException {
         this(new URI(pageURI));
     }
+
     public Webpage(URI pageURI) {
         this.pageURI = pageURI;
-
-        pageUrlLog.add(pageURI);
     }
 
     public void printWithChildren(PrintStream out) {
         printWithChildren("", out);
     }
+
     public void printWithChildren(String offset, PrintStream out) {
         out.println(offset + pageURI.toString());
         if(error != null) {
@@ -109,15 +104,7 @@ public class Webpage {
         return pageURI;
     }
 
-    public String getRequestUserAgent() {
-        return REQUEST_USER_AGENT;
-    }
-
     public ArrayList<Webpage> getChildren() {
         return children;
-    }
-
-    public static CopyOnWriteArrayList<URI> getPageUrlLog() {
-        return pageUrlLog;
     }
 }
