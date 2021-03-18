@@ -24,8 +24,9 @@ public class Main {
             System.exit(1);
 
         ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
-        Webpage rootPage = new Webpage(rootUrl, maxDepth);
-        rootPage.runOnThreadPool(threadPool);
+        Webpage rootPage = new Webpage(rootUrl);
+        WebpageProcessor rootPageProcessor = new WebpageProcessor(rootPage, maxDepth);
+        rootPageProcessor.runOnThreadPool(threadPool);
         ThreadingUtil.waitUntilPoolEmptyAndTerminated(threadPool);
 
         PrintStream programOutput;
