@@ -45,7 +45,7 @@ public class Webpage {
         out.println(offset + "Links: \t\t" + links.size());
         out.println(offset + "Images: \t" + images.size());
         out.println(offset + "Videos: \t" + videos.size());
-        out.println(offset + "Word count: \t" + wordCount);
+        out.println(offset + "Word count: " + wordCount);
         out.println(offset + String.format(
                 "Loading: \t%s in %.2fms ( @ %s/s)",
                 FormattingUtil.readableFileSize(pageSize),
