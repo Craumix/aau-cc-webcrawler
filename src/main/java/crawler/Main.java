@@ -2,9 +2,10 @@ package crawler;
 
 import org.apache.commons.cli.*;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.util.concurrent.*;
 
 public class Main {
@@ -13,6 +14,8 @@ public class Main {
     private static String rootUrl, outputFile;
     private static int maxDepth, threadCount, maxLinksPerPage;
     private static boolean omitDuplicates;
+
+    private static Webpage rootPage;
 
     public static void main(String[] args) throws Exception {
         Options cliOptions = getCliOptions();
@@ -23,19 +26,9 @@ public class Main {
         if(!parseCliOptions(cmd))
             System.exit(1);
 
-        ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
-        Webpage rootPage = new Webpage(rootUrl);
-        WebpageProcessor rootPageProcessor = new WebpageProcessor(rootPage, maxDepth);
-        rootPageProcessor.runOnThreadPool(threadPool);
-        ThreadingUtil.waitUntilPoolEmptyAndTerminated(threadPool);
+        processPages();
 
-        PrintStream programOutput;
-        if(outputFile.equals(""))
-            programOutput = System.out;
-        else
-            programOutput = new PrintStream(new FileOutputStream(new File(outputFile), false));
-
-        rootPage.printWithChildren(programOutput);
+        printPages();
     }
 
     private static boolean helpRequested(CommandLine cmd, Options cliOptions) {
@@ -91,6 +84,24 @@ public class Main {
         options.addOption("l", "max-links", true, String.format("Max links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
         options.addOption("h", "help", false, "Open the help dialog");
         return options;
+    }
+
+    private static void processPages() throws URISyntaxException, InterruptedException {
+        ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
+        rootPage = new Webpage(rootUrl);
+        WebpageProcessor rootPageProcessor = new WebpageProcessor(rootPage, maxDepth);
+        rootPageProcessor.runOnThreadPool(threadPool);
+        ThreadingUtil.waitUntilPoolEmptyAndTerminated(threadPool);
+    }
+
+    private static void printPages() throws FileNotFoundException {
+        PrintStream programOutput;
+        if(outputFile.equals(""))
+            programOutput = System.out;
+        else
+            programOutput = new PrintStream(new FileOutputStream(outputFile, false));
+
+        rootPage.printWithChildren(programOutput);
     }
 
     public static boolean isValidHttpUrl(String url) {
