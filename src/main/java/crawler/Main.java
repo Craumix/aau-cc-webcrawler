@@ -46,7 +46,7 @@ public class Main {
             rootUrl = "http://" + rootUrl;
         }
         if(!isValidHttpUrl(rootUrl)) {
-            System.err.printf("\"%s\" is not a valid Http URL!", rootUrl);
+            System.err.printf("\"%s\" is not a valid Http URL!", cmd.getOptionValue("url"));
             return false;
         }
 
