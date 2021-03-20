@@ -1,9 +1,9 @@
-name: Java CI
+name: Java Gradle Test CI
 
 on: [push, workflow_dispatch]
 
 jobs:
-  build:
+  gradle-tests:
     runs-on: ubuntu-latest
 
     steps:
