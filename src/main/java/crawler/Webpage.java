@@ -90,7 +90,7 @@ public class Webpage {
 
             initializeChildren();
         } catch (IOException e) {
-            e.printStackTrace();
+            error = e;
         }
     }
 
