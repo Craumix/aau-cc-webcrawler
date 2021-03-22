@@ -15,7 +15,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Webpage {
 
-    private static final String REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+    private static final String REQUEST_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)";
+    private static final String BROWSER_REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
     private static final CopyOnWriteArrayList<URI> pageUrlLog = new CopyOnWriteArrayList<>();
 
     private final URI pageURI;
@@ -69,7 +70,7 @@ public class Webpage {
     public void loadPage() {
         try {
             long startTime = System.nanoTime();
-            Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(REQUEST_USER_AGENT).get();
+            Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(Main.useBrowserUserAgent() ? BROWSER_REQUEST_USER_AGENT : REQUEST_USER_AGENT).get();
             loadTimeInNanos = System.nanoTime() - startTime;
 
             pageTitle = pageDocument.title();
@@ -94,8 +95,11 @@ public class Webpage {
                 e.printStackTrace();
                 continue;
             }
-            //if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
-            //    continue;
+            if(rawURI.toString().equals("#") ||
+                    rawURI.toString().equals("/") ||
+                    rawURI.toString().equals("./") ||
+                    rawURI.toString().startsWith("javascript:"))
+                continue;
 
             URI resolvedChildURI = pageURI.resolve(rawURI);
             if(resolvedChildURI.equals(pageURI))
