@@ -78,15 +78,15 @@ public class Main {
 
     private static Options getCliOptions() {
         Options options = new Options();
-        options.addOption("d","max-depth",true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-10", DEFAULT_MAX_DEPTH));
-        options.addOption("s","omit-duplicates",false, "If set omits duplicate pages");
-        options.addOption("b","fake-browser",false, "Use fake Browser UserAgent (in case some sites block the regular one)");
-        options.addOption("r","ignore-robots-txt",false, "Ignores robots.txt");
-        options.addOption("u", "url", true, "Specify the root url for the crawler");
-        options.addOption("o", "output", true, "Output file can be specified as alternative to stdout");
-        options.addOption("t", "threads", true, String.format("How many threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-1024", DEFAULT_THREAD_COUNT));
-        options.addOption("l", "max-links", true, String.format("Max links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
-        options.addOption("h", "help", false, "Open the help dialog");
+        options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-1024", DEFAULT_THREAD_COUNT));
+        options.addOption("l",  "max-links",        true, String.format("Max amount of links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
+        options.addOption("d",  "max-depth",        true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-10", DEFAULT_MAX_DEPTH));
+        options.addOption("u",  "url",              true,   "Specify the root url for the crawler");
+        options.addOption("o",  "output",           true,   "Specify a Output File as alternative to stdout");
+        options.addOption("s",  "omit-duplicates",  false,  "If set, omits duplicate pages");
+        options.addOption("b",  "fake-browser",     false,  "If set, uses Browser UserAgent (in case some sites block the default UserAgent)");
+        options.addOption("r",  "ignore-robots-txt",false,  "If set, ignores robots.txt");
+        options.addOption("h",  "help",             false,  "Open the help dialog");
         return options;
     }
 
