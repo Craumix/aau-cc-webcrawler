@@ -100,7 +100,6 @@ public class Webpage {
             try {
                 rawURI = new URI(link.attr("href"));
             } catch (URISyntaxException e) {
-                e.printStackTrace();
                 continue;
             }
 
