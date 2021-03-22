@@ -7,16 +7,18 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 public class Main {
-    private static final int DEFAULT_MAX_DEPTH = 2,
+    private static final int
+            DEFAULT_MAX_DEPTH = 2,
             DEFAULT_THREAD_COUNT = 2,
             DEFAULT_MAX_LINKS_PER_PAGE = 100;
-    private static final String DEFAULT_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)",
+    private static final String
+            DEFAULT_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)",
             BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
 
 
     private static String rootUrl, outputFile;
     private static int maxDepth, threadCount, maxLinksPerPage;
-    private static boolean omitDuplicates, fakeBrowser, respectRobotsTXT;
+    private static boolean omitDuplicates, fakeBrowser, useRobotsTxt;
 
     private static Webpage rootPage;
 
@@ -31,7 +33,7 @@ public class Main {
 
         Webpage.setRequestUserAgent(fakeBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
 
-        CrawlerLoadFilter loadFilter = new CrawlerLoadFilter(omitDuplicates);
+        CrawlerLoadFilter loadFilter = new CrawlerLoadFilter(omitDuplicates, useRobotsTxt);
 
         rootPage = new Webpage(rootUrl, loadFilter);
         AsyncWebpageProcessor pageProcessor = new AsyncWebpageProcessor(rootPage, maxDepth, threadCount);
@@ -79,7 +81,7 @@ public class Main {
 
         omitDuplicates = cmd.hasOption("omit-duplicates");
         fakeBrowser = cmd.hasOption("fake-browser");
-        respectRobotsTXT = !cmd.hasOption("ignore-robots-txt");
+        useRobotsTxt = !cmd.hasOption("ignore-robots-txt");
         outputFile = cmd.getOptionValue("output","");
 
         return true;
