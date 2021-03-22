@@ -44,7 +44,7 @@ public class CrawlerLoadFilter implements UriLoadFilter {
     }
 
     private boolean allowedByRobotsTxt(URI uri) {
-        if(!hostRobotsMap.contains(uri.getHost()))
+        if(!hostRobotsMap.containsKey(uri.getHost()))
             if(!loadRobotsTxtForHost(uri.getHost()))
                 //Allow uri if robots.txt fails to load
                 return true;
