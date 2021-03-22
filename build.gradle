@@ -15,6 +15,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
+    implementation 'com.panforge:robots:1.4.5'
 }
 
 test {
