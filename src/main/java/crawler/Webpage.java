@@ -11,13 +11,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Webpage {
 
-    private static final String REQUEST_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)";
-    private static final String BROWSER_REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
-    private static final CopyOnWriteArrayList<URI> pageUrlLog = new CopyOnWriteArrayList<>();
+    private static String userAgent = System.getProperty("http.agent");
 
     private final URI pageURI;
 
@@ -30,12 +27,23 @@ public class Webpage {
 
     private ArrayList<Webpage> children = new ArrayList<>();
 
+    private final UriLoadFilter loadFilter;
+
     public Webpage(String pageURI) throws URISyntaxException {
-        this(new URI(pageURI));
+        this(new URI(pageURI), null);
     }
 
     public Webpage(URI pageURI) {
+        this(pageURI, null);
+    }
+
+    public Webpage(String pageURI, UriLoadFilter loadFilter) throws URISyntaxException {
+        this(new URI(pageURI), loadFilter);
+    }
+
+    public Webpage(URI pageURI, UriLoadFilter loadFilter) {
         this.pageURI = pageURI;
+        this.loadFilter = loadFilter;
     }
 
     public void printWithChildren(PrintStream out) {
@@ -70,7 +78,7 @@ public class Webpage {
     public void loadPage() {
         try {
             long startTime = System.nanoTime();
-            Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(Main.useBrowserUserAgent() ? BROWSER_REQUEST_USER_AGENT : REQUEST_USER_AGENT).get();
+            Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(userAgent).get();
             loadTimeInNanos = System.nanoTime() - startTime;
 
             pageTitle = pageDocument.title();
@@ -95,18 +103,20 @@ public class Webpage {
                 e.printStackTrace();
                 continue;
             }
+            /*
             if(rawURI.toString().equals("#") ||
                     rawURI.toString().equals("/") ||
                     rawURI.toString().equals("./") ||
                     rawURI.toString().startsWith("javascript:"))
                 continue;
 
+             */
+
             URI resolvedChildURI = pageURI.resolve(rawURI);
             if(resolvedChildURI.equals(pageURI))
                 continue;
-            if(!(pageUrlLog.contains(resolvedChildURI) && Main.shouldOmitDuplicates())) {
-                Webpage child = new Webpage(resolvedChildURI);
-                pageUrlLog.add(pageURI);
+            if(loadFilter == null || loadFilter.uriShouldBeLoaded(resolvedChildURI)) {
+                Webpage child = new Webpage(resolvedChildURI, loadFilter);
                 children.add(child);
             }
 
@@ -121,5 +131,9 @@ public class Webpage {
 
     public boolean wasLoaded() {
         return loadTimeInNanos > 0;
+    }
+
+    public static void setRequestUserAgent(String agent) {
+        userAgent = agent;
     }
 }
