@@ -1,13 +1,22 @@
 package crawler;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Webpage {
+
+    private static final String REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+    private static final CopyOnWriteArrayList<URI> pageUrlLog = new CopyOnWriteArrayList<>();
 
     private final URI pageURI;
 
@@ -53,58 +62,60 @@ public class Webpage {
         ));
 
         for(Webpage child : children)
-            child.printWithChildren(offset + "\t", out);
+            if(child.wasLoaded())
+                child.printWithChildren(offset + "\t", out);
     }
 
+    public void loadPage() {
+        try {
+            long startTime = System.nanoTime();
+            Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(REQUEST_USER_AGENT).get();
+            loadTimeInNanos = System.nanoTime() - startTime;
 
+            pageTitle = pageDocument.title();
+            links = pageDocument.select("a[href]");
+            images = pageDocument.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
+            videos = pageDocument.select("video");
+            wordCount = pageDocument.text().split(" ").length;
+            pageSize = pageDocument.html().getBytes(StandardCharsets.UTF_8).length;
 
-    public void setLinks(Elements links) {
-        this.links = links;
+            initializeChildren();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void setImages(Elements images) {
-        this.images = images;
-    }
+    private void initializeChildren() {
+        for(Element link : links) {
+            URI rawURI = null;
+            try {
+                rawURI = new URI(link.attr("href"));
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                continue;
+            }
+            //if(rawLink.equals("#") || rawLink.equals("/") || rawLink.equals("./") || rawLink.startsWith("javascript:"))
+            //    continue;
 
-    public void setVideos(Elements videos) {
-        this.videos = videos;
-    }
+            URI resolvedChildURI = pageURI.resolve(rawURI);
+            if(resolvedChildURI.equals(pageURI))
+                continue;
+            if(!(pageUrlLog.contains(resolvedChildURI) && Main.shouldOmitDuplicates())) {
+                Webpage child = new Webpage(resolvedChildURI);
+                pageUrlLog.add(pageURI);
+                children.add(child);
+            }
 
-    public void setWordCount(int wordCount) {
-        this.wordCount = wordCount;
-    }
-
-    public void setPageSize(long pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public void setLoadTimeInNanos(long loadTimeInNanos) {
-        this.loadTimeInNanos = loadTimeInNanos;
-    }
-
-    public void setPageTitle(String pageTitle) {
-        this.pageTitle = pageTitle;
-    }
-
-    public void setError(Exception error) {
-        this.error = error;
-    }
-
-    public void addChild(Webpage child) {
-        this.children.add(child);
-    }
-
-
-
-    public Elements getLinks() {
-        return links;
-    }
-
-    public URI getPageURI() {
-        return pageURI;
+            if (children.size() >= Main.getMaxLinksPerPage())
+                break;
+        }
     }
 
     public ArrayList<Webpage> getChildren() {
         return children;
+    }
+
+    public boolean wasLoaded() {
+        return loadTimeInNanos > 0;
     }
 }

@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
-import java.util.concurrent.*;
 
 public class Main {
     private static final int DEFAULT_MAX_DEPTH = 2, DEFAULT_THREAD_COUNT = 2, DEFAULT_MAX_LINKS_PER_PAGE = 100;
@@ -26,7 +25,9 @@ public class Main {
         if(!parseCliOptions(cmd))
             System.exit(1);
 
-        processPages();
+        rootPage = new Webpage(rootUrl);
+        WebpageProcessor pageProcessor = new WebpageProcessor(rootPage, maxDepth, threadCount);
+        pageProcessor.loadPagesRecursively();
 
         printPages();
     }
@@ -84,14 +85,6 @@ public class Main {
         options.addOption("l", "max-links", true, String.format("Max links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
         options.addOption("h", "help", false, "Open the help dialog");
         return options;
-    }
-
-    private static void processPages() throws URISyntaxException, InterruptedException {
-        ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
-        rootPage = new Webpage(rootUrl);
-        WebpageProcessor rootPageProcessor = new WebpageProcessor(rootPage, maxDepth);
-        rootPageProcessor.runOnThreadPool(threadPool);
-        ThreadingUtil.waitUntilPoolEmptyAndTerminated(threadPool);
     }
 
     private static void printPages() throws FileNotFoundException {
