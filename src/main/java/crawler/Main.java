@@ -53,7 +53,7 @@ public class Main {
     private static boolean parseCliOptions(CommandLine cmd) {
         rootUrl = cmd.getOptionValue("url");
         if(!rootUrl.contains("://")) {
-            System.out.println("No URL scheme given, assuming http...");
+            System.out.println("No URL scheme given, assuming http://");
             rootUrl = "http://" + rootUrl;
         }
         if(!isValidHttpUrl(rootUrl)) {
