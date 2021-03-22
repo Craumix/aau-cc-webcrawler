@@ -15,6 +15,8 @@ public class CrawlerLoadFilter implements UriLoadFilter {
 
     @Override
     public boolean uriShouldBeLoaded(URI uri) {
+        if(uri.toString().startsWith("javascript:"))
+
         if(omitDuplicates) {
             if(uriLog.contains(uri)) {
                 return false;

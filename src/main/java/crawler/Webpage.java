@@ -103,14 +103,6 @@ public class Webpage {
                 e.printStackTrace();
                 continue;
             }
-            /*
-            if(rawURI.toString().equals("#") ||
-                    rawURI.toString().equals("/") ||
-                    rawURI.toString().equals("./") ||
-                    rawURI.toString().startsWith("javascript:"))
-                continue;
-
-             */
 
             URI resolvedChildURI = pageURI.resolve(rawURI);
             if(resolvedChildURI.equals(pageURI))

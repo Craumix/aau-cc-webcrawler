@@ -113,15 +113,7 @@ public class Main {
         return url.matches("https?:\\/\\/?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
     }
 
-    public static boolean shouldOmitDuplicates() {
-        return omitDuplicates;
-    }
-
     public static int getMaxLinksPerPage() {
         return maxLinksPerPage;
-    }
-
-    public static boolean useBrowserUserAgent() {
-        return fakeBrowser;
     }
 }
