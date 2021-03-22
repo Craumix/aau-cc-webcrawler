@@ -5,7 +5,6 @@ import org.apache.commons.cli.*;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 
 public class Main {
     private static final int DEFAULT_MAX_DEPTH = 2, DEFAULT_THREAD_COUNT = 2, DEFAULT_MAX_LINKS_PER_PAGE = 100;
