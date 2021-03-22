@@ -8,19 +8,19 @@ import java.util.concurrent.TimeUnit;
 public class AsyncWebpageProcessor {
 
     private final Webpage rootPage;
-    private final int initialDepth;
+    private final int remainingDepth;
     private final ThreadPoolExecutor threadPool;
 
-    public AsyncWebpageProcessor(Webpage rootPage, int initialDepth, int threadCount) {
+    public AsyncWebpageProcessor(Webpage rootPage, int depth, int threadCount) {
         this.rootPage = rootPage;
-        this.initialDepth = initialDepth;
+        this.remainingDepth = depth - 1;
         this.threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
     }
 
     public void loadPagesRecursively() throws InterruptedException {
         threadPool.execute(() -> {
             rootPage.loadPage();
-            loadChildren(rootPage.getChildren(), initialDepth - 1);
+            loadChildren(rootPage.getChildren(), remainingDepth);
         });
 
         while (threadPool.getActiveCount() > 0)
