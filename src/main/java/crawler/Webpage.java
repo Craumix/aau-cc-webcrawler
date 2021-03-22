@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class Webpage {
 
     private static String userAgent = System.getProperty("http.agent");
+    private static int maxChildrenPerPage = Integer.MAX_VALUE;
 
     private final URI pageURI;
 
@@ -111,7 +112,7 @@ public class Webpage {
                 children.add(child);
             }
 
-            if (children.size() >= Main.getMaxLinksPerPage())
+            if (children.size() >= maxChildrenPerPage)
                 break;
         }
     }
@@ -126,5 +127,9 @@ public class Webpage {
 
     public static void setRequestUserAgent(String agent) {
         userAgent = agent;
+    }
+
+    public static void setMaxChildrenPerPage(int count) {
+        maxChildrenPerPage = count;
     }
 }

@@ -32,6 +32,7 @@ public class Main {
             System.exit(1);
 
         Webpage.setRequestUserAgent(fakeBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
+        Webpage.setMaxChildrenPerPage(maxLinksPerPage);
 
         CrawlerLoadFilter loadFilter = new CrawlerLoadFilter(omitDuplicates, useRobotsTxt);
 
