@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class InputArgumentTest {
 
     @Test
-    @DisplayName("Test multiple URLs that should all be valid")
+    @DisplayName("Test to make sure the regex detects valid urls")
     void testValidURLs() {
         assertTrue(Main.isValidHttpUrl("http://google.com"));
         assertTrue(Main.isValidHttpUrl("http://www.google.com"));
@@ -17,7 +17,7 @@ public class InputArgumentTest {
     }
 
     @Test
-    @DisplayName("Test multiple URLs that should not be valid")
+    @DisplayName("Test to make sure the regex detects invalid urls")
     void testInvalidURLs() {
         //No Scheme
         assertFalse(Main.isValidHttpUrl("google.com"));
