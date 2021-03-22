@@ -25,7 +25,7 @@ public class Main {
             System.exit(1);
 
         rootPage = new Webpage(rootUrl);
-        WebpageProcessor pageProcessor = new WebpageProcessor(rootPage, maxDepth, threadCount);
+        AsyncWebpageProcessor pageProcessor = new AsyncWebpageProcessor(rootPage, maxDepth, threadCount);
         pageProcessor.loadPagesRecursively();
 
         printPages();

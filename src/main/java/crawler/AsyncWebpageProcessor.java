@@ -5,13 +5,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class WebpageProcessor {
+public class AsyncWebpageProcessor {
 
     private final Webpage rootPage;
     private final int initialDepth;
     private final ThreadPoolExecutor threadPool;
 
-    public WebpageProcessor(Webpage rootPage, int initialDepth, int threadCount) {
+    public AsyncWebpageProcessor(Webpage rootPage, int initialDepth, int threadCount) {
         this.rootPage = rootPage;
         this.initialDepth = initialDepth;
         this.threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
