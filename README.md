@@ -19,7 +19,7 @@ This is a Project for the Course "Clean Code" in the Summer Semester of 2021 at 
 
 Exection Examples:  
 `./gradlew run --args="-h"`  
-To display help with for available arguments 
+To display help for available arguments 
 
 `./gradlew run --args="-u github.com"`  
 To run with default parameters on http://github.com   
