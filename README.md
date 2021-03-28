@@ -15,6 +15,8 @@ This is a Project for the Course "Clean Code" in the Summer Semester of 2021 at 
 
 <hr>
 
+*Note: This Project is targeted towards the JDK 15*
+
 Exection Examples:  
 `./gradlew run --args="-h"`  
 To display help with for available arguments 
