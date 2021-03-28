@@ -28,7 +28,7 @@ public class Webpage {
 
     private ArrayList<Webpage> children = new ArrayList<>();
 
-    private final UriLoadFilter loadFilter;
+    private final WebpageLoadFilter loadFilter;
 
     public Webpage(String pageURI) throws URISyntaxException {
         this(new URI(pageURI), null);
@@ -38,11 +38,11 @@ public class Webpage {
         this(pageURI, null);
     }
 
-    public Webpage(String pageURI, UriLoadFilter loadFilter) throws URISyntaxException {
+    public Webpage(String pageURI, WebpageLoadFilter loadFilter) throws URISyntaxException {
         this(new URI(pageURI), loadFilter);
     }
 
-    public Webpage(URI pageURI, UriLoadFilter loadFilter) {
+    public Webpage(URI pageURI, WebpageLoadFilter loadFilter) {
         this.pageURI = pageURI;
         this.loadFilter = loadFilter;
     }
@@ -107,7 +107,7 @@ public class Webpage {
             URI resolvedChildURI = pageURI.resolve(rawURI);
             if(resolvedChildURI.equals(pageURI))
                 continue;
-            if(loadFilter == null || loadFilter.uriShouldBeLoaded(resolvedChildURI)) {
+            if(loadFilter == null || loadFilter.webpageShouldBeLoaded(resolvedChildURI)) {
                 Webpage child = new Webpage(resolvedChildURI, loadFilter);
                 children.add(child);
             }

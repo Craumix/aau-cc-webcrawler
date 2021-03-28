@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class CrawlerLoadFilter implements UriLoadFilter {
+public class CrawlerLoadFilter implements WebpageLoadFilter {
 
     private static final CopyOnWriteArrayList<URI> uriLog = new CopyOnWriteArrayList<>();
     private static final ConcurrentHashMap<String, RobotsTxt> hostRobotsMap = new ConcurrentHashMap<>();
@@ -21,7 +21,7 @@ public class CrawlerLoadFilter implements UriLoadFilter {
     }
 
     @Override
-    public boolean uriShouldBeLoaded(URI uri) {
+    public boolean webpageShouldBeLoaded(URI uri) {
         if(!isHttpScheme(uri))
             return false;
 
