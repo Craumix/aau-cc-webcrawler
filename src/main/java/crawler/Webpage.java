@@ -141,4 +141,8 @@ public class Webpage {
     public String getPageTitle() {
         return pageTitle;
     }
+
+    public long getPageSize() {
+        return pageSize;
+    }
 }

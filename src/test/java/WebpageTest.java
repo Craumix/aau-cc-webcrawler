@@ -20,6 +20,22 @@ public class WebpageTest {
     }
 
     @Test
+    void testPageSize() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/content/page_html_size/5";
+        Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+
+        webpage.loadPage();
+        assertEquals(webpage.getPageSize(), 9057);
+
+        testWebsite = "https://crawler-test.com/content/page_html_size/3080";
+        webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+
+        webpage.loadPage();
+        assertEquals(webpage.getPageSize(), 3048962);
+    }
+
+
+    @Test
     void testPageTitle() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_100_words";
         Webpage webpage = new Webpage(testWebsite);
