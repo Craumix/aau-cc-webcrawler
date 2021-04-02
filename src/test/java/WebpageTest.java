@@ -32,7 +32,7 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getPageTitle(), "Word Count - 100 Words");
+        assertEquals("Word Count - 100 Words", webpage.getPageTitle());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getPageTitle(), "");
+        assertEquals("", webpage.getPageTitle());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getPageTitle(), "");
+        assertEquals("", webpage.getPageTitle());
     }
 
 
@@ -60,7 +60,7 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getWordCount(), 100);
+        assertEquals(100, webpage.getWordCount());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getWordCount(), 1);
+        assertEquals(1, webpage.getWordCount());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getWordCount(), 1);
+        assertEquals(1, webpage.getWordCount());
     }
 
     @Test
@@ -87,6 +87,6 @@ public class WebpageTest {
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
 
         webpage.loadPage();
-        assertEquals(webpage.getWordCount(), 8);
+        assertEquals(8, webpage.getWordCount());
     }
 }
