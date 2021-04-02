@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class Webpage {
 
-    private static String userAgent = System.getProperty("http.agent");
+    private static String userAgent = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)";
     private static int maxChildrenPerPage = Integer.MAX_VALUE;
 
     private final URI pageURI;
@@ -131,5 +131,9 @@ public class Webpage {
 
     public static void setMaxChildrenPerPage(int count) {
         maxChildrenPerPage = count;
+    }
+
+    public int getWordCount() {
+        return wordCount;
     }
 }
