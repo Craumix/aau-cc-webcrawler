@@ -27,6 +27,34 @@ public class WebpageTest {
     }
 
     @Test
+    void testPageTitle() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/content/word_count_100_words";
+        Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+
+        webpage.loadPage();
+        assertEquals(webpage.getPageTitle(), "Word Count - 100 Words");
+    }
+
+    @Test
+    void testPageTitleEmpty() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/titles/empty_title";
+        Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+
+        webpage.loadPage();
+        assertEquals(webpage.getPageTitle(), "");
+    }
+
+    @Test
+    void testPageTitleMissing() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/titles/missing_title";
+        Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+
+        webpage.loadPage();
+        assertEquals(webpage.getPageTitle(), "");
+    }
+
+
+    @Test
     void testWordCount() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_100_words";
         Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);

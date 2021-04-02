@@ -133,7 +133,12 @@ public class Webpage {
         maxChildrenPerPage = count;
     }
 
+
     public int getWordCount() {
         return wordCount;
+    }
+
+    public String getPageTitle() {
+        return pageTitle;
     }
 }
