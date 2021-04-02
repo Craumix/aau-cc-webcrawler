@@ -86,7 +86,7 @@ public class Webpage {
             links = pageDocument.select("a[href]");
             images = pageDocument.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
             videos = pageDocument.select("video");
-            wordCount = pageDocument.text().split(" ").length;
+            wordCount = pageDocument.body().text().split(" ").length;
             pageSize = pageDocument.html().getBytes(StandardCharsets.UTF_8).length;
 
             initializeChildren();
