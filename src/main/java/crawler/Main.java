@@ -8,8 +8,10 @@ import java.io.PrintStream;
 
 public class Main {
     private static final int
-            DEFAULT_MAX_DEPTH = 2,
+            DEFAULT_DEPTH = 2,
+            MAX_DEPTH = 10,
             DEFAULT_THREAD_COUNT = 2,
+            MAX_THREAD_COUNT = 1024,
             DEFAULT_MAX_LINKS_PER_PAGE = 100;
     private static final String
             DEFAULT_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)",
@@ -52,8 +54,6 @@ public class Main {
     }
 
     private static boolean parseCliOptions(CommandLine cmd) {
-        // returns false if an error occurred
-
         rootUrl = cmd.getOptionValue("url");
         if(!rootUrl.contains("://")) {
             rootUrl = "http://" + rootUrl;
@@ -64,14 +64,14 @@ public class Main {
             return false;
         }
 
-        maxDepth = Integer.parseInt(cmd.getOptionValue("max-depth", DEFAULT_MAX_DEPTH + ""));
-        if(maxDepth < 1 || maxDepth > 10) {
+        maxDepth = Integer.parseInt(cmd.getOptionValue("max-depth", DEFAULT_DEPTH + ""));
+        if(maxDepth < 1 || maxDepth > MAX_DEPTH) {
             System.err.printf("%d is not a valid search depth", maxDepth);
             return false;
         }
 
         threadCount = Integer.parseInt(cmd.getOptionValue("threads", DEFAULT_THREAD_COUNT + ""));
-        if(threadCount < 1 || threadCount > 1024) {
+        if(threadCount < 1 || threadCount > MAX_THREAD_COUNT) {
             System.err.printf("%d is not a valid Thread count", threadCount);
             return false;
         }
@@ -92,9 +92,9 @@ public class Main {
 
     private static Options getCliOptions() {
         Options options = new Options();
-        options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-1024", DEFAULT_THREAD_COUNT));
+        options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-1024", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
         options.addOption("l",  "max-links",        true, String.format("Max amount of links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
-        options.addOption("d",  "max-depth",        true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-10", DEFAULT_MAX_DEPTH));
+        options.addOption("d",  "max-depth",        true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-%d", DEFAULT_DEPTH, MAX_DEPTH));
         options.addOption("u",  "url",              true,   "Specify the root url for the crawler");
         options.addOption("o",  "output",           true,   "Specify a Output File as alternative to stdout");
         options.addOption("s",  "omit-duplicates",  false,  "If set, omits duplicate pages");
