@@ -22,7 +22,7 @@ public class CrawlerLoadFilter implements WebpageLoadFilter {
 
     @Override
     public boolean webpageShouldBeLoaded(URI uri) {
-        if(!isHttpScheme(uri))
+        if(!Util.isValidHttpUrl(uri))
             return false;
 
         if(omitDuplicates) {
@@ -37,10 +37,6 @@ public class CrawlerLoadFilter implements WebpageLoadFilter {
             return false;
 
         return true;
-    }
-
-    private boolean isHttpScheme(URI uri) {
-        return uri.getScheme().startsWith("http");
     }
 
     private boolean allowedByRobotsTxt(URI uri) {

@@ -59,7 +59,7 @@ public class Main {
             rootUrl = "http://" + rootUrl;
             System.out.printf("No URL scheme given, assuming %s%n", rootUrl);
         }
-        if(!isValidHttpUrl(rootUrl)) {
+        if(!Util.isValidHttpUrl(rootUrl)) {
             System.err.printf("\"%s\" is not a valid Http URL!", cmd.getOptionValue("url"));
             return false;
         }
@@ -112,9 +112,5 @@ public class Main {
             programOutput = new PrintStream(new FileOutputStream(outputFile, false));
 
         rootPage.printWithChildren(programOutput);
-    }
-
-    public static boolean isValidHttpUrl(String url) {
-        return url.matches("https?:\\/\\/?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
     }
 }

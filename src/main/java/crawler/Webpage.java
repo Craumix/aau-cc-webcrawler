@@ -67,8 +67,8 @@ public class Webpage {
         out.println(offset + "Word count:\t" + wordCount);
         out.println(offset + String.format(
                 "Loading: \t%s in %.2fms ( @ %s/s)",
-                FormattingUtil.readableFileSize(pageSize),
-                (loadTimeInNanos / 1e6), FormattingUtil.readableFileSize(bytesPerSecond)
+                Util.readableFileSize(pageSize),
+                (loadTimeInNanos / 1e6), Util.readableFileSize(bytesPerSecond)
         ));
 
         for(Webpage child : children)
