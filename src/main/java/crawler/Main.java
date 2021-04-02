@@ -14,6 +14,7 @@ public class Main {
             MAX_THREAD_COUNT = 1024,
             DEFAULT_MAX_LINKS_PER_PAGE = 100;
     private static final String
+            DEFAULT_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)",
             BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
 
 
@@ -32,8 +33,7 @@ public class Main {
         if(!parseCliOptions(cmd))
             System.exit(1);
 
-        if (fakeBrowser)
-            Webpage.setRequestUserAgent(BROWSER_USER_AGENT);
+        Webpage.setRequestUserAgent(fakeBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
         Webpage.setMaxChildrenPerPage(maxLinksPerPage);
 
         CrawlerLoadFilter loadFilter = new CrawlerLoadFilter(omitDuplicates, useRobotsTxt);

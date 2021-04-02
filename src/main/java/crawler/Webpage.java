@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class Webpage {
 
-    private static String userAgent = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)";
+    private static String userAgent = "Java/" + System.getProperty("java.version");
     private static int maxChildrenPerPage = Integer.MAX_VALUE;
 
     private final URI pageURI;
