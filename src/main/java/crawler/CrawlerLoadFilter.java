@@ -25,11 +25,12 @@ public class CrawlerLoadFilter implements WebpageLoadFilter {
         if(!Util.isValidHttpUrl(uri))
             return false;
 
+        String dupeCompUri = asCompareUriString(uri);
         if(omitDuplicates)
-            if(urlLog.contains(asCleanUriString(uri)))
+            if(urlLog.contains(dupeCompUri))
                 return false;
             else
-                urlLog.add(asCleanUriString(uri));
+                urlLog.add(dupeCompUri);
 
         if(useRobotsTxt && !allowedByRobotsTxt(uri))
             return false;
@@ -37,17 +38,19 @@ public class CrawlerLoadFilter implements WebpageLoadFilter {
         return true;
     }
 
-    private String asCleanUriString(URI uri) {
+    private String asCompareUriString(URI uri) {
+        StringBuilder sb = new StringBuilder(uri.toString());
+
         //Strip URI Scheme
-        String url = uri.toString().replace(uri.getScheme() + "://", "");
+        sb.delete(0, uri.getScheme().length() + 3);
 
         //Remove trailing "#", "/", or "/#"
-        if(url.endsWith("#"))
-            url = url.substring(0,  url.length() - 1);
-        if(url.endsWith("/"))
-            url = url.substring(0,  url.length() - 1);
+        if(sb.charAt(sb.length() - 1) == '#')
+            sb.deleteCharAt(sb.length() - 1);
+        if(sb.charAt(sb.length() - 1) == '/')
+            sb.deleteCharAt(sb.length() - 1);
 
-        return url;
+        return sb.toString();
     }
 
     private boolean allowedByRobotsTxt(URI uri) {
