@@ -1,8 +1,6 @@
 import crawler.Webpage;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
-import javax.lang.model.element.Element;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,9 +13,13 @@ public class WebpageTest {
     }
 
     @Test
-    void testPrintWithChildren() {
+    void testUserAgent() {
+        String expectedResult = "abc";
+        Webpage.setRequestUserAgent(expectedResult);
 
+        assertEquals(expectedResult, Webpage.getUserAgent());
     }
+
 
     @Test
     void testImages() throws URISyntaxException {
