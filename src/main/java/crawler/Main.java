@@ -106,13 +106,21 @@ public class Main {
         String jsonString = rootPage.asJSONObject().toString(2);
 
         if(!outputFile.equals("")) {
+            FileWriter fw = null;
             try {
-                FileWriter fw = new FileWriter(outputFile, false);
+                fw = new FileWriter(outputFile, false);
                 fw.write(jsonString);
-                fw.flush();
-                fw.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if(fw != null) {
+                    try {
+                        fw.flush();
+                        fw.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }else {
             System.out.println(jsonString);
