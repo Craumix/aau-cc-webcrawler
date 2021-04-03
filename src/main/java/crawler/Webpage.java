@@ -95,7 +95,8 @@ public class Webpage {
                 childrenArr.put(child.asJSONObject());
             }
 
-            thisJSON.put("children", childrenArr);
+            if(childrenArr.length() > 0)
+                thisJSON.put("children", childrenArr);
         }
 
         return thisJSON;
