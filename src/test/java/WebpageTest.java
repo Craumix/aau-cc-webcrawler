@@ -13,6 +13,14 @@ public class WebpageTest {
     }
 
     @Test
+    void testMaxChildrenPerPage() {
+        int expectedResult = 58;
+        Webpage.setMaxChildrenPerPage(expectedResult);
+
+        assertEquals(expectedResult, Webpage.getMaxChildrenPerPage());
+    }
+
+    @Test
     void testUserAgent() {
         String expectedResult = "abc";
         Webpage.setRequestUserAgent(expectedResult);

@@ -197,4 +197,8 @@ public class Webpage {
     public static String getUserAgent() {
         return userAgent;
     }
+
+    public static int getMaxChildrenPerPage() {
+        return maxChildrenPerPage;
+    }
 }
