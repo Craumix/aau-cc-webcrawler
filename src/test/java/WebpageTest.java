@@ -13,6 +13,15 @@ public class WebpageTest {
     }
 
     @Test
+    void testPageHashString() throws URISyntaxException {
+        String testWebsite = "http://example.org/";
+        Webpage webpage = new Webpage(testWebsite);
+
+        webpage.loadPage();
+        assertEquals("05D8617380C30F4A70CE0D4088D54D2B", webpage.getPageHashString());
+    }
+
+    @Test
     void testMaxChildrenPerPage() {
         int expectedResult = 58;
         Webpage.setMaxChildrenPerPage(expectedResult);
