@@ -76,7 +76,7 @@ public class Main {
 
         maxLinksPerPage = Integer.parseInt(cmd.getOptionValue("max-links", DEFAULT_MAX_LINKS_PER_PAGE + ""));
         if(maxLinksPerPage < 1) {
-            System.err.printf("Max links to follow should be > 1");
+            System.err.print("Max links to follow should be > 1");
             return false;
         }
 
@@ -90,7 +90,7 @@ public class Main {
 
     private static Options getCliOptions() {
         Options options = new Options();
-        options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-1024", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
+        options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-%d", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
         options.addOption("l",  "max-links",        true, String.format("Max amount of links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
         options.addOption("d",  "max-depth",        true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-%d", DEFAULT_DEPTH, MAX_DEPTH));
         options.addOption("u",  "url",              true,   "Specify the root url for the crawler");
@@ -102,12 +102,12 @@ public class Main {
         return options;
     }
 
-    private static void printPages() throws FileNotFoundException {
+    private static void printPages() {
         String jsonString = rootPage.asJSONObject().toString(2);
 
         if(!outputFile.equals("")) {
             try {
-                FileWriter fw = new FileWriter(new File(outputFile), false);
+                FileWriter fw = new FileWriter(outputFile, false);
                 fw.write(jsonString);
                 fw.flush();
                 fw.close();
