@@ -110,12 +110,12 @@ public class Main {
             try {
                 fw = new FileWriter(outputFile, false);
                 fw.write(jsonString);
+                fw.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 if(fw != null) {
                     try {
-                        fw.flush();
                         fw.close();
                     } catch (IOException e) {
                         e.printStackTrace();
