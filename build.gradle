@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'jacoco'
 }
 
 group 'org.example'
@@ -8,6 +9,15 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
+application {
+    mainClass = "crawler.Main"
+}
+
+jacoco {
+    toolVersion = '0.8.7-SNAPSHOT'
 }
 
 dependencies {
@@ -23,8 +33,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
-application {
-    mainClass = "crawler.Main"
+jacocoTestReport {
+    dependsOn test
 }
