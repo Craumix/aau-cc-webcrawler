@@ -1,4 +1,5 @@
 import crawler.Webpage;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -159,8 +160,8 @@ public class WebpageTest {
     }
 
     @Test
-    @DisplayName("Test if the JSONObject derived from a Webpage is as expected (excluding nanoLoadTime)")
-    void testJSONtoString() throws URISyntaxException {
+    @DisplayName("Test if the JSONObject derived from a Webpage without links is as expected (excluding nanoLoadTime)")
+    void testJSONtoStringWithoutChildren() throws URISyntaxException {
         String testWebsite = "https://example.org";
         Webpage webpage = new Webpage(testWebsite);
 
@@ -171,6 +172,50 @@ public class WebpageTest {
         String actualResult = resultingJSON.toString();
         String expectedResult = "{\"url\":\"https://example.org\",\"title\":\"Example Domain\",\"linkCount\":1,\"imageCount\":0,\"videoCount\":0,\"wordCount\":28,\"pageSize\":1249,\"pageHash\":\"05D8617380C30F4A70CE0D4088D54D2B\"}";
 
-        assertEquals(actualResult, expectedResult);
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    @DisplayName("Test if the JSONObject derived from a Webpage is as expected (excluding nanoLoadTime)")
+    void testJSONtoString() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/links/page_with_external_links";
+        Webpage webpage = new Webpage(testWebsite);
+
+        webpage.loadPage();
+        for (Webpage child : webpage.getChildren())
+            child.loadPage();
+
+        JSONObject resultingJSON = webpage.asJSONObject();
+        resultingJSON.remove("nanoLoadTime");
+        resultingJSON.remove("pageHash");
+        resultingJSON.remove("pageSize");
+
+        JSONArray resultingJSONArray = resultingJSON.getJSONArray("children");
+        for (int i=0; i<resultingJSONArray.length(); i++) {
+            resultingJSONArray.getJSONObject(i).remove("nanoLoadTime");
+            resultingJSONArray.getJSONObject(i).remove("pageHash");
+            resultingJSONArray.getJSONObject(i).remove("pageSize");
+        }
+
+
+        String actualResult = resultingJSON.toString();
+        String expectedResult = "{\"url\":\"https://crawler-test.com/links/page_with_external_links\",\"title\":\"Page with External Links\",\"linkCount\":6,\"imageCount\":0,\"videoCount\":0,\"wordCount\":25,\"children\":[{\"url\":\"https://crawler-test.com/\",\"title\":\"Crawler Test Site\",\"linkCount\":413,\"imageCount\":0,\"videoCount\":0,\"wordCount\":1539},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402},{\"url\":\"http://semetrical.com\",\"title\":\"Digital Marketing Agency London | Global Solutions | Semetrical\",\"linkCount\":121,\"imageCount\":27,\"videoCount\":0,\"wordCount\":650},{\"url\":\"http://deepcrawl.co.uk\",\"title\":\"DeepCrawl | The #1 Technical SEO Platform\",\"linkCount\":64,\"imageCount\":54,\"videoCount\":0,\"wordCount\":817},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402}]}";
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    @DisplayName("Test if the JSONObject correctly errors out when the website doesn't exist")
+    void testJSONtoStringError() throws URISyntaxException {
+        String testWebsite = "https://e.a";
+        Webpage webpage = new Webpage(testWebsite);
+
+        webpage.loadPage();
+        JSONObject resultingJSON = webpage.asJSONObject();
+        resultingJSON.remove("nanoLoadTime");
+
+        String actualResult = resultingJSON.toString();
+        String expectedResult = "{\"url\":\"https://e.a\",\"error\":\"e.a\"}";
+
+        assertEquals(expectedResult, actualResult);
     }
 }
