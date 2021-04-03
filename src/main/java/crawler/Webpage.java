@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Webpage {
@@ -23,6 +25,7 @@ public class Webpage {
     private int wordCount;
     private long pageSize, loadTimeInNanos;
     private String pageTitle;
+    private byte[] pageHash;
 
     private Exception error;
 
@@ -89,8 +92,11 @@ public class Webpage {
             wordCount = pageDocument.body().text().split(" ").length;
             pageSize = pageDocument.html().getBytes(StandardCharsets.UTF_8).length;
 
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            pageHash = md.digest(pageDocument.html().getBytes(StandardCharsets.UTF_8));
+
             initializeChildren();
-        } catch (IOException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             error = e;
         }
     }
@@ -140,6 +146,14 @@ public class Webpage {
 
     public String getPageTitle() {
         return pageTitle;
+    }
+
+    public String getPageHashString() {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : pageHash) {
+            sb.append(String.format("%02X ", b));
+        }
+        return sb.toString();
     }
 
     public long getPageSize() {
