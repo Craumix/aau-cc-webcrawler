@@ -1,4 +1,6 @@
 import crawler.Webpage;
+import org.json.JSONObject;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
@@ -154,5 +156,21 @@ public class WebpageTest {
 
         webpage.loadPage();
         assertEquals(8, webpage.getWordCount());
+    }
+
+    @Test
+    @DisplayName("Test if the JSONObject derived from a Webpage is as expected (excluding nanoLoadTime)")
+    void testJSONtoString() throws URISyntaxException {
+        String testWebsite = "https://example.org";
+        Webpage webpage = new Webpage(testWebsite);
+
+        webpage.loadPage();
+        JSONObject resultingJSON = webpage.asJSONObject();
+        resultingJSON.remove("nanoLoadTime");
+
+        String actualResult = resultingJSON.toString();
+        String expectedResult = "{\"url\":\"https://example.org\",\"title\":\"Example Domain\",\"linkCount\":1,\"imageCount\":0,\"videoCount\":0,\"wordCount\":28,\"pageSize\":1249,\"pageHash\":\"05D8617380C30F4A70CE0D4088D54D2B\"}";
+
+        assertEquals(actualResult, expectedResult);
     }
 }

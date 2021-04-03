@@ -49,4 +49,17 @@ public class FilterTest {
         assertFalse(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com/infinite")));
         assertFalse(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com/speed_test")));
     }
+
+    @Test
+    @DisplayName("Missing RobotsTxt")
+    void testMissingRobotsTxt() throws URISyntaxException {
+        CrawlerLoadFilter filter = new CrawlerLoadFilter(false, true);
+
+        /**
+         * This Website doesn't have a /robots.txt file and this test depends on it not having one.
+         * This is obviously not a good idea but probably the best for now..
+         */
+
+        assertTrue(filter.webpageShouldBeLoaded(new URI("http://www.simplecpudesign.com")));
+    }
 }
