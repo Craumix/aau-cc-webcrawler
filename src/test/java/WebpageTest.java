@@ -1,8 +1,8 @@
-import crawler.CrawlerLoadFilter;
 import crawler.Webpage;
-import org.junit.jupiter.api.BeforeEach;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
+import javax.lang.model.element.Element;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,16 +19,37 @@ public class WebpageTest {
 
     }
 
+
+    @Test
+    void testLinks() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/links/page_with_external_links";
+        Webpage webpage = new Webpage(testWebsite);
+
+        webpage.loadPage();
+
+        String actualResult = webpage.getLinks().toString();
+        String expectedResult =
+                "<a href=\"/\" id=\"logo\">Crawler Test <span class=\"neon-effect\">two point oh!</span></a>\n" +
+                "<a href=\"http://robotto.org\">External Link 1</a>\n" +
+                "<a href=\"http://semetrical.com\">External Link 2</a>\n" +
+                "<a href=\"http://deepcrawl.co.uk\">External Link 3</a>\n" +
+                "<a href=\"http://robotto.org\">Repeated External Link</a>\n" +
+                "<a href=\"http://robotto.org\">Repeated External Link</a>";
+
+        assertEquals(expectedResult,actualResult);
+    }
+
+
     @Test
     void testPageSize() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/page_html_size/5";
-        Webpage webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+        Webpage webpage = new Webpage(testWebsite);
 
         webpage.loadPage();
         assertEquals(webpage.getPageSize(), 9057);
 
         testWebsite = "https://crawler-test.com/content/page_html_size/3080";
-        webpage = new Webpage(testWebsite, loadFilterFalseFalse);
+        webpage = new Webpage(testWebsite);
 
         webpage.loadPage();
         assertEquals(webpage.getPageSize(), 3048962);

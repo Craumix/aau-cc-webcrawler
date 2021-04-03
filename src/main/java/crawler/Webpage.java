@@ -145,4 +145,10 @@ public class Webpage {
     public long getPageSize() {
         return pageSize;
     }
+
+    public Elements getLinks() {
+        return links;
+    }
+
+
 }
