@@ -14,12 +14,17 @@ public class FilterTest {
     void testDuplicateFilter() throws URISyntaxException {
         CrawlerLoadFilter filter = new CrawlerLoadFilter(true, false);
 
-        assertTrue(filter.webpageShouldBeLoaded(new URI("https://google.com")));
+        filter.webpageShouldBeLoaded(new URI("https://google.com"));
 
-        assertFalse(filter.webpageShouldBeLoaded(new URI("http://google.com")));
+        assertFalse(filter.webpageShouldBeLoaded(new URI("https://google.com")));
         assertFalse(filter.webpageShouldBeLoaded(new URI("https://google.com/")));
         assertFalse(filter.webpageShouldBeLoaded(new URI("https://google.com#")));
         assertFalse(filter.webpageShouldBeLoaded(new URI("https://google.com/#")));
+
+        assertFalse(filter.webpageShouldBeLoaded(new URI("http://google.com")));
+        assertFalse(filter.webpageShouldBeLoaded(new URI("http://google.com/")));
+        assertFalse(filter.webpageShouldBeLoaded(new URI("http://google.com#")));
+        assertFalse(filter.webpageShouldBeLoaded(new URI("http://google.com/#")));
     }
 
     @Test
