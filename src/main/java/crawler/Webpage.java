@@ -27,7 +27,7 @@ public class Webpage {
 
     private Elements links, images, videos;
     private int wordCount;
-    private boolean loadAttempted = false;
+    private boolean loadAttempted = false, loadPreventedByFilter = false;
     private long pageSize, loadTimeInNanos;
     private String pageTitle;
     private byte[] pageHash;
@@ -90,9 +90,8 @@ public class Webpage {
 
             JSONArray childrenArr = new JSONArray();
             for(Webpage child : children) {
-                if(!child.loadWasAttempted())
-                    break;
-                childrenArr.put(child.asJSONObject());
+                if(child.loadingWasAttempted() && !child.loadingWasPreventedByFilter())
+                    childrenArr.put(child.asJSONObject());
             }
 
             if(childrenArr.length() > 0)
@@ -105,6 +104,11 @@ public class Webpage {
     public void loadPage() {
         try {
             loadAttempted = true;
+
+            if(loadFilter != null && !loadFilter.webpageShouldBeLoaded(pageURI)) {
+                loadPreventedByFilter = true;
+                return;
+            }
 
             long startTime = System.nanoTime();
             Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(userAgent).get();
@@ -121,7 +125,7 @@ public class Webpage {
             pageHash = md.digest(pageDocument.html().getBytes(StandardCharsets.UTF_8));
 
             initializeChildren();
-        } catch (IOException | NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             error = e;
         }
     }
@@ -138,18 +142,21 @@ public class Webpage {
             URI resolvedChildURI = pageURI.resolve(rawURI);
             if(resolvedChildURI.equals(pageURI))
                 continue;
-            if(loadFilter == null || loadFilter.webpageShouldBeLoaded(resolvedChildURI)) {
-                Webpage child = new Webpage(resolvedChildURI, loadFilter);
-                children.add(child);
-            }
+
+            Webpage child = new Webpage(resolvedChildURI, loadFilter);
+            children.add(child);
 
             if (children.size() >= maxChildrenPerPage)
                 break;
         }
     }
 
-    public boolean loadWasAttempted() {
+    public boolean loadingWasAttempted() {
         return loadAttempted;
+    }
+
+    public boolean loadingWasPreventedByFilter() {
+        return loadPreventedByFilter;
     }
 
     public String getPageHashString() {
