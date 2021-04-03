@@ -1,10 +1,12 @@
 import crawler.Webpage;
+import crawler.WebpageLoadFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -244,6 +246,36 @@ public class WebpageTest {
 
         String actualResult = resultingJSON.toString();
         String expectedResult = "{\"url\":\"https://e.a\",\"error\":\"e.a\"}";
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    @DisplayName("Test if the children don't get added when the load filter return false")
+    void testLoadFilter() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/links/page_with_external_links";
+        class DummyFilter implements WebpageLoadFilter {
+            @Override
+            public boolean webpageShouldBeLoaded(URI webpageURI) {
+                try {
+                    return webpageURI.equals(new URI(testWebsite));
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+
+        DummyFilter dummyFilter = new DummyFilter();
+
+        Webpage webpage = new Webpage(testWebsite, dummyFilter);
+
+        webpage.loadPage();
+        JSONObject resultingJSON = webpage.asJSONObject();
+        resultingJSON.remove("nanoLoadTime");
+        resultingJSON.remove("pageHash");
+
+        String actualResult = resultingJSON.toString();
+        String expectedResult = "{\"url\":\"https://crawler-test.com/links/page_with_external_links\",\"title\":\"Page with External Links\",\"linkCount\":6,\"imageCount\":0,\"videoCount\":0,\"wordCount\":25,\"pageSize\":1927}";
 
         assertEquals(expectedResult, actualResult);
     }
