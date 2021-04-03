@@ -150,5 +150,7 @@ public class Webpage {
         return links;
     }
 
-
+    public Elements getImages() {
+        return images;
+    }
 }

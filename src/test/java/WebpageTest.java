@@ -19,6 +19,23 @@ public class WebpageTest {
 
     }
 
+    @Test
+    void testImages() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/links/image_links";
+        Webpage webpage = new Webpage(testWebsite);
+
+        webpage.loadPage();
+
+        String actualResult = webpage.getImages().toString();
+        String expectedResult =
+                "<img src=\"/image_link.png\" alt=\"Image alt tag that is not empty\">\n" +
+                "<img src=\"/image_link.png\" alt=\"\">\n" +
+                "<img src=\"/image_link.png\">\n" +
+                "<img src=\"/image_link.png\">";
+
+        assertEquals(expectedResult, actualResult);
+    }
+
 
     @Test
     void testLinks() throws URISyntaxException {
@@ -36,7 +53,7 @@ public class WebpageTest {
                 "<a href=\"http://robotto.org\">Repeated External Link</a>\n" +
                 "<a href=\"http://robotto.org\">Repeated External Link</a>";
 
-        assertEquals(expectedResult,actualResult);
+        assertEquals(expectedResult, actualResult);
     }
 
 
