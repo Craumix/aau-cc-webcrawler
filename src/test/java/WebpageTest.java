@@ -1,6 +1,7 @@
 import crawler.Webpage;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -160,6 +161,34 @@ public class WebpageTest {
     }
 
     @Test
+    @DisplayName("Test if children stop being added when the limit is hit")
+    void testMaxLinksPerPage() throws URISyntaxException {
+        String testWebsite = "https://crawler-test.com/links/page_with_external_links";
+        Webpage webpage = new Webpage(testWebsite);
+        Webpage.setMaxChildrenPerPage(1);
+        webpage.loadPage();
+        for (Webpage child : webpage.getChildren())
+            child.loadPage();
+
+        JSONObject resultingJSON = webpage.asJSONObject();
+        resultingJSON.remove("nanoLoadTime");
+        resultingJSON.remove("pageHash");
+        resultingJSON.remove("pageSize");
+
+        JSONArray resultingJSONArray = resultingJSON.getJSONArray("children");
+        for (int i=0; i<resultingJSONArray.length(); i++) {
+            resultingJSONArray.getJSONObject(i).remove("nanoLoadTime");
+            resultingJSONArray.getJSONObject(i).remove("pageHash");
+            resultingJSONArray.getJSONObject(i).remove("pageSize");
+        }
+
+        String actualResult = resultingJSON.toString();
+        String expectedResult = "{\"url\":\"https://crawler-test.com/links/page_with_external_links\",\"title\":\"Page with External Links\",\"linkCount\":6,\"imageCount\":0,\"videoCount\":0,\"wordCount\":25,\"children\":[{\"url\":\"https://crawler-test.com/\",\"title\":\"Crawler Test Site\",\"linkCount\":413,\"imageCount\":0,\"videoCount\":0,\"wordCount\":1539}]}";
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
     @DisplayName("Test if the JSONObject derived from a Webpage without links is as expected (excluding nanoLoadTime)")
     void testJSONtoStringWithoutChildren() throws URISyntaxException {
         String testWebsite = "https://example.org";
@@ -217,5 +246,10 @@ public class WebpageTest {
         String expectedResult = "{\"url\":\"https://e.a\",\"error\":\"e.a\"}";
 
         assertEquals(expectedResult, actualResult);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        Webpage.setMaxChildrenPerPage(Integer.MAX_VALUE);
     }
 }
