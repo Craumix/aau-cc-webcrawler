@@ -1,8 +1,6 @@
 package crawler;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.text.DecimalFormat;
 
 public class Util {

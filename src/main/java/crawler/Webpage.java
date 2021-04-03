@@ -90,7 +90,7 @@ public class Webpage {
 
             JSONArray childrenArr = new JSONArray();
             for(Webpage child : children) {
-                if(!child.loadAttempted)
+                if(!child.loadWasAttempted())
                     break;
                 childrenArr.put(child.asJSONObject());
             }
@@ -127,7 +127,7 @@ public class Webpage {
 
     private void initializeChildren() {
         for(Element link : links) {
-            URI rawURI = null;
+            URI rawURI;
             try {
                 rawURI = new URI(link.attr("href"));
             } catch (URISyntaxException e) {
