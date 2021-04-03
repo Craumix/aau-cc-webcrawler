@@ -2,9 +2,7 @@ package crawler;
 
 import org.apache.commons.cli.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 
 public class Main {
     private static final int
@@ -105,12 +103,19 @@ public class Main {
     }
 
     private static void printPages() throws FileNotFoundException {
-        PrintStream programOutput;
-        if(outputFile.equals(""))
-            programOutput = System.out;
-        else
-            programOutput = new PrintStream(new FileOutputStream(outputFile, false));
+        String jsonString = rootPage.asJSONObject().toString(2);
 
-        rootPage.printWithChildren(programOutput);
+        if(!outputFile.equals("")) {
+            try {
+                FileWriter fw = new FileWriter(new File(outputFile), false);
+                fw.write(jsonString);
+                fw.flush();
+                fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else {
+            System.out.println(jsonString);
+        }
     }
 }

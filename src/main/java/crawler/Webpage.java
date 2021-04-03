@@ -1,5 +1,8 @@
 package crawler;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -7,12 +10,14 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class Webpage {
 
@@ -23,6 +28,7 @@ public class Webpage {
 
     private Elements links, images, videos;
     private int wordCount;
+    private boolean loadAttempted = false;
     private long pageSize, loadTimeInNanos;
     private String pageTitle;
     private byte[] pageHash;
@@ -36,51 +42,70 @@ public class Webpage {
     public Webpage(String pageURI) throws URISyntaxException {
         this(new URI(pageURI), null);
     }
-
     public Webpage(URI pageURI) {
         this(pageURI, null);
     }
-
     public Webpage(String pageURI, WebpageLoadFilter loadFilter) throws URISyntaxException {
         this(new URI(pageURI), loadFilter);
     }
-
     public Webpage(URI pageURI, WebpageLoadFilter loadFilter) {
         this.pageURI = pageURI;
         this.loadFilter = loadFilter;
     }
 
-    public void printWithChildren(PrintStream out) {
-        printWithChildren("", out);
-    }
+    public JSONObject asJSONObject() {
+        JSONObject thisJSON = new JSONObject() {
+            /**
+             * https://stackoverflow.com/a/62476486
+             * changes the value of JSONObject.map to a LinkedHashMap in order to maintain
+             * order of keys.
+             */
+            @Override
+            public JSONObject put(String key, Object value) throws JSONException {
+                try {
+                    Field map = JSONObject.class.getDeclaredField("map");
+                    map.setAccessible(true);
+                    Object mapValue = map.get(this);
+                    if (!(mapValue instanceof LinkedHashMap)) {
+                        map.set(this, new LinkedHashMap<>());
+                    }
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                return super.put(key, value);
+            }
+        };
 
-    public void printWithChildren(String offset, PrintStream out) {
-        out.println(offset + pageURI.toString());
+        thisJSON.put("url", pageURI.toString());
         if(error != null) {
-            out.println(offset + "Error: " + error.getMessage());
-            return;
+            thisJSON.put("error", error.getMessage());
+        }else {
+            thisJSON.put("title", pageTitle);
+            thisJSON.put("linkCount", links.size());
+            thisJSON.put("imageCount", images.size());
+            thisJSON.put("videoCount", videos.size());
+            thisJSON.put("wordCount", wordCount);
+            thisJSON.put("pageSize", pageSize);
+            thisJSON.put("nanoLoadTime", loadTimeInNanos);
+            thisJSON.put("pageHash", getPageHashString());
+
+            JSONArray childrenArr = new JSONArray();
+            for(Webpage child : children) {
+                if(!child.loadAttempted)
+                    break;
+                childrenArr.put(child.asJSONObject());
+            }
+
+            thisJSON.put("children", childrenArr);
         }
 
-        double bytesPerSecond = pageSize / (loadTimeInNanos / 1e9);
-
-        out.println(offset + "Title: \t\t" + pageTitle);
-        out.println(offset + "Links: \t\t" + links.size());
-        out.println(offset + "Images: \t" + images.size());
-        out.println(offset + "Videos: \t" + videos.size());
-        out.println(offset + "Word count:\t" + wordCount);
-        out.println(offset + String.format(
-                "Loading: \t%s in %.2fms ( @ %s/s)",
-                Util.readableFileSize(pageSize),
-                (loadTimeInNanos / 1e6), Util.readableFileSize(bytesPerSecond)
-        ));
-
-        for(Webpage child : children)
-            if(child.wasLoaded())
-                child.printWithChildren(offset + "\t", out);
+        return thisJSON;
     }
 
     public void loadPage() {
         try {
+            loadAttempted = true;
+
             long startTime = System.nanoTime();
             Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(userAgent).get();
             loadTimeInNanos = System.nanoTime() - startTime;
@@ -127,10 +152,6 @@ public class Webpage {
         return children;
     }
 
-    public boolean wasLoaded() {
-        return loadTimeInNanos > 0;
-    }
-
     public static void setRequestUserAgent(String agent) {
         userAgent = agent;
     }
@@ -139,6 +160,9 @@ public class Webpage {
         maxChildrenPerPage = count;
     }
 
+    public boolean loadWasAttempted() {
+        return loadAttempted;
+    }
 
     public int getWordCount() {
         return wordCount;
@@ -151,7 +175,7 @@ public class Webpage {
     public String getPageHashString() {
         StringBuilder sb = new StringBuilder();
         for (byte b : pageHash) {
-            sb.append(String.format("%02X ", b));
+            sb.append(String.format("%02X", b));
         }
         return sb.toString();
     }
