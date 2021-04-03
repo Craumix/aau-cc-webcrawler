@@ -148,9 +148,18 @@ public class Webpage {
         }
     }
 
-    public ArrayList<Webpage> getChildren() {
-        return children;
+    public boolean loadWasAttempted() {
+        return loadAttempted;
     }
+
+    public String getPageHashString() {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : pageHash) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
+
 
     public static void setRequestUserAgent(String agent) {
         userAgent = agent;
@@ -160,8 +169,9 @@ public class Webpage {
         maxChildrenPerPage = count;
     }
 
-    public boolean loadWasAttempted() {
-        return loadAttempted;
+
+    public ArrayList<Webpage> getChildren() {
+        return children;
     }
 
     public int getWordCount() {
@@ -170,14 +180,6 @@ public class Webpage {
 
     public String getPageTitle() {
         return pageTitle;
-    }
-
-    public String getPageHashString() {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : pageHash) {
-            sb.append(String.format("%02X", b));
-        }
-        return sb.toString();
     }
 
     public long getPageSize() {
@@ -190,5 +192,9 @@ public class Webpage {
 
     public Elements getImages() {
         return images;
+    }
+
+    public static String getUserAgent() {
+        return userAgent;
     }
 }
