@@ -7,6 +7,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UtilTest {
 
     @Test
+    @DisplayName("This is a dummy test to achieve 100% Code Coverage by instantiating the Util class")
+    void dummyUtilInstance() {
+        new Util();
+    }
+
+    @Test
     @DisplayName("Test to make sure the regex detects valid urls")
     void testValidURLs() {
         assertTrue(Util.isValidHttpUrl("http://google.com"));
