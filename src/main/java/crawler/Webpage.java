@@ -112,7 +112,7 @@ public class Webpage {
 
             pageTitle = pageDocument.title();
             links = pageDocument.select("a[href]");
-            images = pageDocument.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
+            images = pageDocument.select("img[src~=(?i)\\.(png|jpe?g|gif|svg)]");
             videos = pageDocument.select("video");
             wordCount = pageDocument.body().text().split(" ").length;
             pageSize = pageDocument.html().getBytes(StandardCharsets.UTF_8).length;
