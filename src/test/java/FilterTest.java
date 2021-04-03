@@ -1,4 +1,5 @@
 import crawler.CrawlerLoadFilter;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilterTest {
 
     @Test
+    @DisplayName("Test CrawlerLoadFilter duplicate detection")
     void testDuplicateFilter() throws URISyntaxException {
         CrawlerLoadFilter filter = new CrawlerLoadFilter(true, false);
 
