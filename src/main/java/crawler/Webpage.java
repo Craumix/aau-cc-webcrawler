@@ -9,7 +9,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -91,7 +90,7 @@ public class Webpage {
 
             JSONArray childrenArr = new JSONArray();
             for(Webpage child : children) {
-                if(!child.loadAttempted)
+                if(!child.loadWasAttempted())
                     break;
                 childrenArr.put(child.asJSONObject());
             }
@@ -128,7 +127,7 @@ public class Webpage {
 
     private void initializeChildren() {
         for(Element link : links) {
-            URI rawURI = null;
+            URI rawURI;
             try {
                 rawURI = new URI(link.attr("href"));
             } catch (URISyntaxException e) {
