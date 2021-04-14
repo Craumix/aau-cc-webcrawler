@@ -1,4 +1,4 @@
-import crawler.CrawlerLoadFilter;
+import crawler.DuplicateLoadFilter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -7,12 +7,12 @@ import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FilterTest {
+public class DuplicateFilterTest {
 
     @Test
     @DisplayName("Test CrawlerLoadFilter duplicate detection")
     void testDuplicateFilter() throws URISyntaxException {
-        CrawlerLoadFilter filter = new CrawlerLoadFilter(true, false);
+        DuplicateLoadFilter filter = new DuplicateLoadFilter();
 
         filter.webpageShouldBeLoaded(new URI("https://google.com"));
 
@@ -30,7 +30,7 @@ public class FilterTest {
     @Test
     @DisplayName("Test CrawlerLoadFilter for invalid urls")
     void testFilterInvalidUrlDetection() throws URISyntaxException {
-        CrawlerLoadFilter filter = new CrawlerLoadFilter(false, false);
+        DuplicateLoadFilter filter = new DuplicateLoadFilter();
 
         assertTrue(filter.webpageShouldBeLoaded(new URI("https://google.com")));
 
@@ -38,28 +38,5 @@ public class FilterTest {
         assertFalse(filter.webpageShouldBeLoaded(new URI("http://domain")));
     }
 
-    @Test
-    @DisplayName("Test RobotsTxt")
-    void testRobotsTxt() throws URISyntaxException {
-        CrawlerLoadFilter filter = new CrawlerLoadFilter(false, true);
 
-        assertTrue(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com")));
-        assertTrue(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com/robots_protocol/page_allowed_with_robots")));
-
-        assertFalse(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com/infinite")));
-        assertFalse(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com/speed_test")));
-    }
-
-    @Test
-    @DisplayName("Missing RobotsTxt")
-    void testMissingRobotsTxt() throws URISyntaxException {
-        CrawlerLoadFilter filter = new CrawlerLoadFilter(false, true);
-
-        /**
-         * This Website doesn't have a /robots.txt file and this test depends on it not having one.
-         * This is obviously not a good idea but probably the best for now..
-         */
-
-        assertTrue(filter.webpageShouldBeLoaded(new URI("http://www.simplecpudesign.com")));
-    }
 }
