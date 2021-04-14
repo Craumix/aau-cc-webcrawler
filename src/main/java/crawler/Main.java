@@ -3,6 +3,7 @@ package crawler;
 import org.apache.commons.cli.*;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class Main {
@@ -19,81 +20,77 @@ public class Main {
 
     private static String rootUrl, outputFile;
     private static int maxDepth, threadCount, maxLinksPerPage;
-    private static boolean omitDuplicates, fakeBrowser, useRobotsTxt;
+    private static boolean omitDuplicates, spoofBrowser, respectRobotsTxt;
+
+    private static Options cliOptions;
+    private static CommandLine cmdLine;
 
     private static Webpage rootPage;
 
     public static void main(String[] args) throws Exception {
-        Options cliOptions = getCliOptions();
-        CommandLine cmd = new DefaultParser().parse(cliOptions, args);
+        initializeCliOptions();
+        cmdLine = new DefaultParser().parse(cliOptions, args);
 
-        if(helpRequested(cmd, cliOptions))
+        if (helpRequested())
             System.exit(0);
-        if(!parseCliOptions(cmd))
+        if (!parseCliOptions())
             System.exit(1);
 
-        Webpage.setRequestUserAgent(fakeBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
-        Webpage.setMaxChildrenPerPage(maxLinksPerPage);
+        initializeRootPage();
 
-        ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
-        if (omitDuplicates)
-            loadFilters.add(new DuplicateLoadFilter());
-        if (useRobotsTxt)
-            loadFilters.add(new RobotLoadFilter());
-
-        rootPage = new Webpage(rootUrl, loadFilters);
         AsyncWebpageProcessor pageProcessor = new AsyncWebpageProcessor(rootPage, maxDepth, threadCount);
         pageProcessor.loadPagesRecursively();
 
         printPages();
     }
 
-    private static boolean helpRequested(CommandLine cmd, Options cliOptions) {
-        if(cmd.hasOption("help") || !cmd.hasOption("url")) {
+    private static boolean helpRequested() {
+        if (cmdLine.hasOption("help") || !cmdLine.hasOption("url")) {
             new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
             return true;
         }
         return false;
     }
 
-    private static boolean parseCliOptions(CommandLine cmd) {
-        rootUrl = cmd.getOptionValue("url");
-        if(!rootUrl.contains("://")) {
+    private static boolean parseCliOptions() {
+        // returns false when an error occurs
+        rootUrl = cmdLine.getOptionValue("url");
+        if (!rootUrl.contains("://")) {
             rootUrl = "http://" + rootUrl;
             System.out.printf("No URL scheme given, assuming %s%n", rootUrl);
         }
-        if(!Util.isValidHttpUrl(rootUrl)) {
-            System.err.printf("\"%s\" is not a valid Http URL!", cmd.getOptionValue("url"));
+        if (!Util.isValidHttpUrl(rootUrl)) {
+            System.err.printf("\"%s\" is not a valid Http URL!", cmdLine.getOptionValue("url"));
             return false;
         }
 
-        maxDepth = Integer.parseInt(cmd.getOptionValue("max-depth", DEFAULT_DEPTH + ""));
-        if(maxDepth < 1 || maxDepth > MAX_DEPTH) {
+        maxDepth = Integer.parseInt(cmdLine.getOptionValue("max-depth", DEFAULT_DEPTH + ""));
+        if (maxDepth < 1 || maxDepth > MAX_DEPTH) {
             System.err.printf("%d is not a valid search depth", maxDepth);
             return false;
         }
 
-        threadCount = Integer.parseInt(cmd.getOptionValue("threads", DEFAULT_THREAD_COUNT + ""));
-        if(threadCount < 1 || threadCount > MAX_THREAD_COUNT) {
+        threadCount = Integer.parseInt(cmdLine.getOptionValue("threads", DEFAULT_THREAD_COUNT + ""));
+        if (threadCount < 1 || threadCount > MAX_THREAD_COUNT) {
             System.err.printf("%d is not a valid Thread count", threadCount);
             return false;
         }
 
-        maxLinksPerPage = Integer.parseInt(cmd.getOptionValue("max-links", DEFAULT_MAX_LINKS_PER_PAGE + ""));
-        if(maxLinksPerPage < 1) {
+        maxLinksPerPage = Integer.parseInt(cmdLine.getOptionValue("max-links", DEFAULT_MAX_LINKS_PER_PAGE + ""));
+        if (maxLinksPerPage < 1) {
             System.err.print("Max links to follow should be > 1");
             return false;
         }
 
-        omitDuplicates = cmd.hasOption("omit-duplicates");
-        fakeBrowser = cmd.hasOption("fake-browser");
-        useRobotsTxt = !cmd.hasOption("ignore-robots-txt");
-        outputFile = cmd.getOptionValue("output","");
+        omitDuplicates = cmdLine.hasOption("omit-duplicates");
+        spoofBrowser = cmdLine.hasOption("fake-browser");
+        respectRobotsTxt = !cmdLine.hasOption("ignore-robots-txt");
+        outputFile = cmdLine.getOptionValue("output","");
 
         return true;
     }
 
-    private static Options getCliOptions() {
+    private static void initializeCliOptions() {
         Options options = new Options();
         options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-%d", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
         options.addOption("l",  "max-links",        true, String.format("Max amount of links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
@@ -101,16 +98,29 @@ public class Main {
         options.addOption("u",  "url",              true,   "Specify the root url for the crawler");
         options.addOption("o",  "output",           true,   "Specify a Output File as alternative to stdout");
         options.addOption("s",  "omit-duplicates",  false,  "If set, omits duplicate pages");
-        options.addOption("b",  "fake-browser",     false,  "If set, uses Browser UserAgent (in case some sites block the default UserAgent)");
+        options.addOption("b",  "spoof-browser",    false,  "If set, spoofs the UserAgent (in case some sites block the default UserAgent)");
         options.addOption("r",  "ignore-robots-txt",false,  "If set, ignores robots.txt");
         options.addOption("h",  "help",             false,  "Open the help dialog");
-        return options;
+        cliOptions = options;
+    }
+
+    private static void initializeRootPage() throws URISyntaxException {
+        Webpage.setRequestUserAgent(spoofBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
+        Webpage.setMaxChildrenPerPage(maxLinksPerPage);
+
+        ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
+        if (omitDuplicates)
+            loadFilters.add(new DuplicateLoadFilter());
+        if (respectRobotsTxt)
+            loadFilters.add(new RobotLoadFilter());
+
+        rootPage = new Webpage(rootUrl, loadFilters);
     }
 
     private static void printPages() {
         String jsonString = rootPage.asJSONObject().toString(2);
 
-        if(!outputFile.equals("")) {
+        if (!outputFile.equals("")) {
             FileWriter fw = null;
             try {
                 fw = new FileWriter(outputFile, false);
@@ -119,7 +129,7 @@ public class Main {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if(fw != null) {
+                if (fw != null) {
                     try {
                         fw.close();
                     } catch (IOException e) {
