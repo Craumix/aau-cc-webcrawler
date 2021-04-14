@@ -1,5 +1,11 @@
 package crawler;
 
+import crawler.webpage.filter.DuplicateLoadFilter;
+import crawler.webpage.filter.RobotsLoadFilter;
+import crawler.webpage.filter.WebpageLoadFilter;
+import crawler.util.Util;
+import crawler.webpage.AsyncWebpageLoader;
+import crawler.webpage.Webpage;
 import org.apache.commons.cli.*;
 
 import java.io.*;
@@ -38,7 +44,7 @@ public class Main {
 
         initializeRootPage();
 
-        AsyncWebpageProcessor pageProcessor = new AsyncWebpageProcessor(rootPage, maxDepth, threadCount);
+        AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, maxDepth, threadCount);
         pageProcessor.loadPagesRecursively();
 
         printPages();
@@ -112,7 +118,7 @@ public class Main {
         if (omitDuplicates)
             loadFilters.add(new DuplicateLoadFilter());
         if (respectRobotsTxt)
-            loadFilters.add(new RobotLoadFilter());
+            loadFilters.add(new RobotsLoadFilter());
 
         rootPage = new Webpage(rootUrl, loadFilters);
     }

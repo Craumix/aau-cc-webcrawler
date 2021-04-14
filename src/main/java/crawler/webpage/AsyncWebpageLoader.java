@@ -1,17 +1,17 @@
-package crawler;
+package crawler.webpage;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class AsyncWebpageProcessor {
+public class AsyncWebpageLoader {
 
     private final Webpage rootPage;
     private final int remainingDepth;
     private final ThreadPoolExecutor threadPool;
 
-    public AsyncWebpageProcessor(Webpage rootPage, int depth, int threadCount) {
+    public AsyncWebpageLoader(Webpage rootPage, int depth, int threadCount) {
         this.rootPage = rootPage;
         this.remainingDepth = depth - 1;
         this.threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);

@@ -1,5 +1,4 @@
-import crawler.DuplicateLoadFilter;
-import crawler.RobotLoadFilter;
+import crawler.webpage.filter.RobotsLoadFilter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +8,12 @@ import java.net.URISyntaxException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RobotFilterTest {
+public class RobotsFilterTest {
 
     @Test
     @DisplayName("Test RobotsTxt")
     void testRobotsTxt() throws URISyntaxException {
-        RobotLoadFilter filter = new RobotLoadFilter();
+        RobotsLoadFilter filter = new RobotsLoadFilter();
 
         assertTrue(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com")));
         assertTrue(filter.webpageShouldBeLoaded(new URI("https://crawler-test.com/robots_protocol/page_allowed_with_robots")));
@@ -26,7 +25,7 @@ public class RobotFilterTest {
     @Test
     @DisplayName("Missing RobotsTxt")
     void testMissingRobotsTxt() throws URISyntaxException {
-        RobotLoadFilter filter = new RobotLoadFilter();
+        RobotsLoadFilter filter = new RobotsLoadFilter();
 
         /**
          * This Website doesn't have a /robots.txt file and this test depends on it not having one.

@@ -1,5 +1,5 @@
-import crawler.AsyncWebpageProcessor;
-import crawler.Webpage;
+import crawler.webpage.AsyncWebpageLoader;
+import crawler.webpage.Webpage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ public class PageProcessorTest {
     @DisplayName("Tests the AsyncPageProcessor by loading google.com with a depth of 2")
     void testPageProcessorWithValidInputs() throws URISyntaxException, InterruptedException {
         Webpage rootPage = new Webpage("https://google.com");
-        AsyncWebpageProcessor webpageProcessor = new AsyncWebpageProcessor(rootPage, 2, 1);
+        AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 2, 1);
         webpageProcessor.loadPagesRecursively();
 
         assertFalse(rootPage.getPageTitle().equals(""));

@@ -1,4 +1,4 @@
-package crawler;
+package crawler.webpage.filter;
 
 import com.panforge.robotstxt.RobotsTxt;
 
@@ -7,7 +7,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RobotLoadFilter implements WebpageLoadFilter{
+public class RobotsLoadFilter implements WebpageLoadFilter{
 
     private static final ConcurrentHashMap<String, RobotsTxt> hostRobotsMap = new ConcurrentHashMap<>();
 

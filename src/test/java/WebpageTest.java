@@ -1,5 +1,5 @@
-import crawler.Webpage;
-import crawler.WebpageLoadFilter;
+import crawler.webpage.Webpage;
+import crawler.webpage.filter.WebpageLoadFilter;
 import jdk.jfr.Description;
 import org.json.JSONArray;
 import org.json.JSONObject;

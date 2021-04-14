@@ -1,5 +1,6 @@
-package crawler;
+package crawler.webpage;
 
+import crawler.webpage.filter.WebpageLoadFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

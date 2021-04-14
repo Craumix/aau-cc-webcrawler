@@ -1,4 +1,4 @@
-package crawler;
+package crawler.webpage.filter;
 
 import java.net.URI;
 

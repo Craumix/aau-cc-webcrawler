@@ -1,4 +1,4 @@
-package crawler;
+package crawler.util;
 
 import java.net.URI;
 import java.text.DecimalFormat;
