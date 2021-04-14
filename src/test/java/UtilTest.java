@@ -51,13 +51,13 @@ public class UtilTest {
     @Test
     @DisplayName("Tests valid Value values for readable Byte-Formatting")
     void testValidInputsForByteFormatting() {
-        assertEquals(Util.readableFileSize(8l), "8 B");
+        assertEquals(Util.readableFileSize(8L), "8 B");
         assertEquals(Util.readableFileSize(8.0), "8 B");
 
-        assertEquals(Util.readableFileSize(2048l), "2 kB");
+        assertEquals(Util.readableFileSize(2048L), "2 kB");
         assertEquals(Util.readableFileSize(2048.0), "2 kB");
 
-        assertEquals(Util.readableFileSize(1024l * 1024l * 50l), "50 MB");
+        assertEquals(Util.readableFileSize(1024L * 1024L * 50L), "50 MB");
 
         assertEquals(Util.readableFileSize(1024.0 * 1024.0 * 4.5), "4.5 MB");
     }
