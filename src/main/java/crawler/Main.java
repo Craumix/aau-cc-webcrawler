@@ -26,7 +26,7 @@ public class Main {
 
     private static String rootUrl, outputFile;
     private static int maxDepth, threadCount, maxLinksPerPage;
-    private static boolean omitDuplicates, spoofBrowser, respectRobotsTxt;
+    private static boolean omitDuplicates, spoofBrowser, respectRobotsTxt, outputIntoFile;
 
     private static Options cliOptions;
     private static CommandLine cmdLine;
@@ -99,18 +99,25 @@ public class Main {
         spoofBrowser = cmdLine.hasOption("fake-browser");
         respectRobotsTxt = !cmdLine.hasOption("ignore-robots-txt");
         outputFile = cmdLine.getOptionValue("output","");
+        outputIntoFile = !outputFile.equals("");
 
-        if(!outputFile.equals("")) {
-            if(!outputFile.endsWith(".json")) {
-                String filename = outputFile;
-                if(filename.contains("."))
-                    filename = filename.substring(0, filename.lastIndexOf("."));
-
-                System.out.printf("The output format is JSON consider using %s as a filename", filename + ".json");
-            }
-        }
+        if (outputIntoFile)
+            printWarningIfFileIsntJSON();
 
         return true;
+    }
+
+    /**
+     * Prints a warning if the specified output file isn't a .json file.
+     */
+    private static void printWarningIfFileIsntJSON() {
+        if (!outputFile.endsWith(".json")) {
+            String filename = outputFile;
+            if (filename.contains("."))
+                filename = filename.substring(0, filename.lastIndexOf("."));
+
+            System.out.printf("The output format is JSON consider using %s as a filename", filename + ".json");
+        }
     }
 
     /**
@@ -154,7 +161,7 @@ public class Main {
     private static void printPages() {
         String jsonString = rootPage.asJSONObject().toString(2);
 
-        if (!outputFile.equals("")) {
+        if (outputIntoFile) {
             FileWriter fw = null;
             try {
                 fw = new FileWriter(outputFile, false);
