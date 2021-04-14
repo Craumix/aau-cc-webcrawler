@@ -49,7 +49,7 @@ public class UtilTest {
     }
 
     @Test
-    @DisplayName("Tests valid Value values for readable Byte-Formatting")
+    @DisplayName("Tests valid values for readable Byte-Formatting")
     void testValidInputsForByteFormatting() {
         assertEquals(Util.readableFileSize(8L), "8 B");
         assertEquals(Util.readableFileSize(8.0), "8 B");
