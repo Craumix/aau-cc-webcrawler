@@ -75,19 +75,11 @@ public class Webpage {
 
     /**
      * Returns a JSONObject that contains:
-     * - URL
-     * - Title
-     * - Link count
-     * - Image count
-     * - Video count
-     * - Word count
-     * - Page Size in bytes
-     * - Load time in nanoseconds
-     * - Page hash (MD5 using the whole page)
+     * URL, Title, Link count, Image count, Video count, Word count, Page Size in bytes,
+     * Load time in nanoseconds, Page hash (MD5 using the whole page).
      *
      * If and Exception occurred while loading the page:
-     * - URL
-     * - Error
+     * URL, Error
      *
      * @return  a JSONObject representing the Information gathered from the Website
      * @see     JSONObject
