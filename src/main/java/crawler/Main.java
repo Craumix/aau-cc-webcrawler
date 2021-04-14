@@ -50,6 +50,10 @@ public class Main {
         printPages();
     }
 
+    /**
+     * Checks if the help flag was set and if it was prints the help dialog.
+     * @return  true if the help flag was set
+     */
     private static boolean helpRequested() {
         if (cmdLine.hasOption("help") || !cmdLine.hasOption("url")) {
             new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
@@ -58,8 +62,11 @@ public class Main {
         return false;
     }
 
+    /**
+     * Parse the command line options into variables.
+     * @return  false when an error occurs
+     */
     private static boolean parseCliOptions() {
-        // returns false when an error occurs
         rootUrl = cmdLine.getOptionValue("url");
         if (!rootUrl.contains("://")) {
             rootUrl = "http://" + rootUrl;
@@ -92,6 +99,7 @@ public class Main {
         spoofBrowser = cmdLine.hasOption("fake-browser");
         respectRobotsTxt = !cmdLine.hasOption("ignore-robots-txt");
         outputFile = cmdLine.getOptionValue("output","");
+
         if(!outputFile.equals("")) {
             if(!outputFile.endsWith(".json")) {
                 String filename = outputFile;
@@ -105,6 +113,9 @@ public class Main {
         return true;
     }
 
+    /**
+     * Load command line options.
+     */
     private static void initializeCliOptions() {
         Options options = new Options();
         options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-%d", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
@@ -119,6 +130,10 @@ public class Main {
         cliOptions = options;
     }
 
+    /**
+     * Loads the root page with the specified filters, user agent and links per page.
+     * @throws URISyntaxException
+     */
     private static void initializeRootPage() throws URISyntaxException {
         Webpage.setRequestUserAgent(spoofBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
         Webpage.setMaxChildrenPerPage(maxLinksPerPage);
@@ -132,6 +147,10 @@ public class Main {
         rootPage = new Webpage(rootUrl, loadFilters);
     }
 
+    /**
+     * Prints the root page and its children either into a file if one is specified
+     * or into System.out.
+     */
     private static void printPages() {
         String jsonString = rootPage.asJSONObject().toString(2);
 
