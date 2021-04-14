@@ -48,7 +48,7 @@ public class AsyncWebpageLoader {
      * @param remainingDepth    the remaining depth for loading, will only load if > 0
      */
     private void loadChildren(ArrayList<Webpage> pages, int remainingDepth) {
-        if(remainingDepth > 0) {
+        if (remainingDepth > 0) {
             for (Webpage page : pages) {
                 threadPool.execute(() -> {
                     page.loadPage();

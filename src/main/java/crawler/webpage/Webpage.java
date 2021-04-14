@@ -108,9 +108,9 @@ public class Webpage {
         };
 
         thisJSON.put("url", pageURI.toString());
-        if(error != null) {
+        if (error != null) {
             thisJSON.put("error", error.getMessage());
-        }else {
+        } else {
             thisJSON.put("title", pageTitle);
             thisJSON.put("linkCount", links.size());
             thisJSON.put("imageCount", images.size());
@@ -121,12 +121,11 @@ public class Webpage {
             thisJSON.put("pageHash", getPageHashString());
 
             JSONArray childrenArr = new JSONArray();
-            for(Webpage child : children) {
-                if(child.loadingWasAttempted() && !child.loadingWasPreventedByFilter())
+            for (Webpage child : children)
+                if (child.loadingWasAttempted() && !child.loadingWasPreventedByFilter())
                     childrenArr.put(child.asJSONObject());
-            }
 
-            if(childrenArr.length() > 0)
+            if (childrenArr.length() > 0)
                 thisJSON.put("children", childrenArr);
         }
 
@@ -175,7 +174,7 @@ public class Webpage {
      * Only creates a certain amount of children if setMaxChildrenPerPage() was used.
      */
     private void initializeChildren() {
-        for(Element link : links) {
+        for (Element link : links) {
             URI rawURI;
             try {
                 rawURI = new URI(link.attr("href"));
@@ -184,9 +183,9 @@ public class Webpage {
             }
 
             URI resolvedChildURI = pageURI.resolve(rawURI);
-            if(resolvedChildURI.equals(pageURI))
+            if (resolvedChildURI.equals(pageURI))
                 continue;
-            if(!Util.isValidHttpUrl(resolvedChildURI))
+            if (!Util.isValidHttpUrl(resolvedChildURI))
                 continue;
 
             Webpage child = new Webpage(resolvedChildURI, loadFilters);
@@ -223,9 +222,9 @@ public class Webpage {
      */
     public String getPageHashString() {
         StringBuilder sb = new StringBuilder();
-        for (byte b : pageHash) {
+        for (byte b : pageHash)
             sb.append(String.format("%02X", b));
-        }
+
         return sb.toString();
     }
 

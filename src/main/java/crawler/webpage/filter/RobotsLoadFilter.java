@@ -21,8 +21,8 @@ public class RobotsLoadFilter implements WebpageLoadFilter{
      */
     @Override
     public boolean webpageShouldBeLoaded(URI uri) {
-        if(!hostRobotsMap.containsKey(uri.getHost()))
-            if(!loadRobotsTxtForHost(uri.getHost()))
+        if (!hostRobotsMap.containsKey(uri.getHost()))
+            if (!loadRobotsTxtForHost(uri.getHost()))
                 //Allow uri if robots.txt fails to load
                 return true;
 
@@ -41,7 +41,7 @@ public class RobotsLoadFilter implements WebpageLoadFilter{
             URL robotsUrl = new URL("http://" + host + "/robots.txt");
             hostRobotsMap.put(host, RobotsTxt.read(robotsUrl.openStream()));
             return true;
-        }catch (IOException e) {
+        } catch (IOException e) {
             return false;
         }
     }

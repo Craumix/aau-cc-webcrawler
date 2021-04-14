@@ -20,7 +20,7 @@ public class DuplicateLoadFilter implements WebpageLoadFilter {
     @Override
     public boolean webpageShouldBeLoaded(URI uri) {
         String dupeCompUri = asCompareUriString(uri);
-        if(urlLog.contains(dupeCompUri))
+        if (urlLog.contains(dupeCompUri))
             return false;
         else
             urlLog.add(dupeCompUri);
@@ -42,9 +42,9 @@ public class DuplicateLoadFilter implements WebpageLoadFilter {
         sb.delete(0, uri.getScheme().length() + 3);
 
         //Remove trailing "#", "/", or "/#"
-        if(sb.charAt(sb.length() - 1) == '#')
+        if (sb.charAt(sb.length() - 1) == '#')
             sb.deleteCharAt(sb.length() - 1);
-        if(sb.charAt(sb.length() - 1) == '/')
+        if (sb.charAt(sb.length() - 1) == '/')
             sb.deleteCharAt(sb.length() - 1);
 
         return sb.toString();
