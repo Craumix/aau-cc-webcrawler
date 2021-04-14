@@ -1,5 +1,6 @@
 import crawler.Webpage;
 import crawler.WebpageLoadFilter;
+import jdk.jfr.Description;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -14,11 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class WebpageTest {
 
     @Test
-    void testLoadChildren() {
-
-    }
-
-    @Test
+    @Description("Test whether the generation of the page-hash works correctly")
     void testPageHashString() throws URISyntaxException {
         String testWebsite = "http://example.org/";
         Webpage webpage = new Webpage(testWebsite);
@@ -28,6 +25,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test if maxChildren can be set")
     void testMaxChildrenPerPage() {
         int expectedResult = 58;
         Webpage.setMaxChildrenPerPage(expectedResult);
@@ -36,6 +34,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test if a user agent can be set")
     void testUserAgent() {
         String expectedResult = "abc";
         Webpage.setRequestUserAgent(expectedResult);
@@ -45,6 +44,7 @@ public class WebpageTest {
 
 
     @Test
+    @Description("Test if image links in a page get loaded correctly")
     void testImages() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/links/image_links";
         Webpage webpage = new Webpage(testWebsite);
@@ -63,6 +63,7 @@ public class WebpageTest {
 
 
     @Test
+    @Description("Test if links in a page get loaded correctly")
     void testLinks() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/links/page_with_external_links";
         Webpage webpage = new Webpage(testWebsite);
@@ -83,6 +84,7 @@ public class WebpageTest {
 
 
     @Test
+    @Description("Test if the page size gets calculated correctly")
     void testPageSize() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/page_html_size/5";
         Webpage webpage = new Webpage(testWebsite);
@@ -99,6 +101,7 @@ public class WebpageTest {
 
 
     @Test
+    @Description("Test if the page title gets set correctly")
     void testPageTitle() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_100_words";
         Webpage webpage = new Webpage(testWebsite);
@@ -108,6 +111,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test an empty page title gets set correctly")
     void testPageTitleEmpty() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/titles/empty_title";
         Webpage webpage = new Webpage(testWebsite);
@@ -117,6 +121,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test if a missing page title gets set correctly")
     void testPageTitleMissing() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/titles/missing_title";
         Webpage webpage = new Webpage(testWebsite);
@@ -127,6 +132,7 @@ public class WebpageTest {
 
 
     @Test
+    @Description("Test if it counts words correctly")
     void testWordCount() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_100_words";
         Webpage webpage = new Webpage(testWebsite);
@@ -136,6 +142,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test if it counts words correctly with hyphens involved")
     void testWordCountWordWithHyphen() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_hyphenated";
         Webpage webpage = new Webpage(testWebsite);
@@ -145,6 +152,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test if it counts words correctly with numbers involved")
     void testWordCountNumber() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_number";
         Webpage webpage = new Webpage(testWebsite);
@@ -154,6 +162,7 @@ public class WebpageTest {
     }
 
     @Test
+    @Description("Test if it counts words correctly with symbols involved")
     void testWordCountSymbols() throws URISyntaxException {
         String testWebsite = "https://crawler-test.com/content/word_count_symbols";
         Webpage webpage = new Webpage(testWebsite);
@@ -230,7 +239,7 @@ public class WebpageTest {
 
 
         String actualResult = resultingJSON.toString();
-        String expectedResult = "{\"url\":\"https://crawler-test.com/links/page_with_external_links\",\"title\":\"Page with External Links\",\"linkCount\":6,\"imageCount\":0,\"videoCount\":0,\"wordCount\":25,\"children\":[{\"url\":\"https://crawler-test.com/\",\"title\":\"Crawler Test Site\",\"linkCount\":413,\"imageCount\":0,\"videoCount\":0,\"wordCount\":1539},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402},{\"url\":\"http://semetrical.com\",\"title\":\"Digital Marketing Agency London | Global Solutions | Semetrical\",\"linkCount\":121,\"imageCount\":27,\"videoCount\":0,\"wordCount\":650},{\"url\":\"http://deepcrawl.co.uk\",\"title\":\"DeepCrawl | The #1 Technical SEO Platform\",\"linkCount\":64,\"imageCount\":54,\"videoCount\":0,\"wordCount\":817},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402}]}";
+        String expectedResult = "{\"url\":\"https://crawler-test.com/links/page_with_external_links\",\"title\":\"Page with External Links\",\"linkCount\":6,\"imageCount\":0,\"videoCount\":0,\"wordCount\":25,\"children\":[{\"url\":\"https://crawler-test.com/\",\"title\":\"Crawler Test Site\",\"linkCount\":413,\"imageCount\":0,\"videoCount\":0,\"wordCount\":1539},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402},{\"url\":\"http://semetrical.com\",\"title\":\"Digital Marketing Agency London | Global Solutions | Semetrical\",\"linkCount\":121,\"imageCount\":27,\"videoCount\":0,\"wordCount\":638},{\"url\":\"http://deepcrawl.co.uk\",\"title\":\"DeepCrawl | The #1 Technical SEO Platform\",\"linkCount\":65,\"imageCount\":54,\"videoCount\":0,\"wordCount\":835},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402},{\"url\":\"http://robotto.org\",\"title\":\"Robotto | Domain Monitoring, SEO Alerts & Portfolio Domain Management\",\"linkCount\":17,\"imageCount\":1,\"videoCount\":0,\"wordCount\":402}]}";
         assertEquals(expectedResult, actualResult);
     }
 
