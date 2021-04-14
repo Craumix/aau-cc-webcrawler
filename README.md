@@ -38,5 +38,10 @@ Running Unit Tests:
 
 <hr>
 
+Building a runnable Jar:
+`./gradlew jar`
+
+<hr>
+
 **Please Note:**
 Running with a large depth (probably something > 4) and many Threads can lead to a DOS like amount of request and may get you blacklisted.
