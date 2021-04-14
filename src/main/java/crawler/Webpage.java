@@ -8,13 +8,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -35,21 +33,20 @@ public class Webpage {
     private Exception error;
 
     private ArrayList<Webpage> children = new ArrayList<>();
-
-    private final WebpageLoadFilter loadFilter;
+    private ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
 
     public Webpage(String pageURI) throws URISyntaxException {
-        this(new URI(pageURI), null);
+        this(new URI(pageURI), new ArrayList<>());
     }
     public Webpage(URI pageURI) {
-        this(pageURI, null);
+        this(pageURI, new ArrayList<>());
     }
-    public Webpage(String pageURI, WebpageLoadFilter loadFilter) throws URISyntaxException {
-        this(new URI(pageURI), loadFilter);
+    public Webpage(String pageURI, ArrayList<WebpageLoadFilter> loadFilters) throws URISyntaxException {
+        this(new URI(pageURI), loadFilters);
     }
-    public Webpage(URI pageURI, WebpageLoadFilter loadFilter) {
+    public Webpage(URI pageURI, ArrayList<WebpageLoadFilter> loadFilters) {
         this.pageURI = pageURI;
-        this.loadFilter = loadFilter;
+        this.loadFilters = loadFilters;
     }
 
     public JSONObject asJSONObject() {
@@ -105,9 +102,11 @@ public class Webpage {
         try {
             loadAttempted = true;
 
-            if(loadFilter != null && !loadFilter.webpageShouldBeLoaded(pageURI)) {
-                loadPreventedByFilter = true;
-                return;
+            for (WebpageLoadFilter filter : loadFilters) {
+                if (!filter.webpageShouldBeLoaded(pageURI)) {
+                    loadPreventedByFilter = true;
+                    return;
+                }
             }
 
             long startTime = System.nanoTime();
@@ -143,7 +142,7 @@ public class Webpage {
             if(resolvedChildURI.equals(pageURI))
                 continue;
 
-            Webpage child = new Webpage(resolvedChildURI, loadFilter);
+            Webpage child = new Webpage(resolvedChildURI, loadFilters);
             children.add(child);
 
             if (children.size() >= maxChildrenPerPage)

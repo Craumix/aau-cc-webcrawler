@@ -3,6 +3,7 @@ package crawler;
 import org.apache.commons.cli.*;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class Main {
     private static final int
@@ -34,9 +35,13 @@ public class Main {
         Webpage.setRequestUserAgent(fakeBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
         Webpage.setMaxChildrenPerPage(maxLinksPerPage);
 
-        CrawlerLoadFilter loadFilter = new CrawlerLoadFilter(omitDuplicates, useRobotsTxt);
+        ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
+        if (omitDuplicates)
+            loadFilters.add(new DuplicateLoadFilter());
+        if (useRobotsTxt)
+            loadFilters.add(new RobotLoadFilter());
 
-        rootPage = new Webpage(rootUrl, loadFilter);
+        rootPage = new Webpage(rootUrl, loadFilters);
         AsyncWebpageProcessor pageProcessor = new AsyncWebpageProcessor(rootPage, maxDepth, threadCount);
         pageProcessor.loadPagesRecursively();
 
@@ -122,7 +127,7 @@ public class Main {
                     }
                 }
             }
-        }else {
+        } else {
             System.out.println(jsonString);
         }
     }

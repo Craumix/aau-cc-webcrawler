@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -274,9 +275,10 @@ public class WebpageTest {
             }
         }
 
-        DummyFilter dummyFilter = new DummyFilter();
+        ArrayList<WebpageLoadFilter> dummyFilterList = new ArrayList<>();
+        dummyFilterList.add(new DummyFilter());
 
-        Webpage webpage = new Webpage(testWebsite, dummyFilter);
+        Webpage webpage = new Webpage(testWebsite, dummyFilterList);
 
         webpage.loadPage();
         JSONObject resultingJSON = webpage.asJSONObject();
