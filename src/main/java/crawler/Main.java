@@ -92,6 +92,15 @@ public class Main {
         spoofBrowser = cmdLine.hasOption("fake-browser");
         respectRobotsTxt = !cmdLine.hasOption("ignore-robots-txt");
         outputFile = cmdLine.getOptionValue("output","");
+        if(!outputFile.equals("")) {
+            if(!outputFile.endsWith(".json")) {
+                String filename = outputFile;
+                if(filename.contains("."))
+                    filename = filename.substring(0, filename.lastIndexOf("."));
+
+                System.out.printf("The output format is JSON consider using %s as a filename", filename + ".json");
+            }
+        }
 
         return true;
     }
