@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DuplicateFilterTest {
 
+
     @Test
     @DisplayName("Test CrawlerLoadFilter duplicate detection")
     void testDuplicateFilter() throws URISyntaxException {
@@ -27,6 +28,7 @@ public class DuplicateFilterTest {
         assertFalse(filter.webpageShouldBeLoaded(new URI("http://google.com/#")));
     }
 
+    /*
     @Test
     @DisplayName("Test CrawlerLoadFilter for invalid urls")
     void testFilterInvalidUrlDetection() throws URISyntaxException {
@@ -37,6 +39,5 @@ public class DuplicateFilterTest {
         assertFalse(filter.webpageShouldBeLoaded(new URI("abc://domain.com")));
         assertFalse(filter.webpageShouldBeLoaded(new URI("http://domain")));
     }
-
-
+    */
 }

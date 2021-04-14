@@ -1,5 +1,6 @@
 package crawler.webpage;
 
+import crawler.util.Util;
 import crawler.webpage.filter.WebpageLoadFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,20 +37,61 @@ public class Webpage {
     private ArrayList<Webpage> children = new ArrayList<>();
     private ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
 
+    /**
+     * String will be parsed to URI throws an exception if string is not a valid URI
+     *
+     * @param pageURI   the URI of the Website to load
+     * @throws URISyntaxException
+     */
     public Webpage(String pageURI) throws URISyntaxException {
         this(new URI(pageURI), new ArrayList<>());
     }
+
+    /**
+     * @param pageURI   the URI of the Website to load
+     */
     public Webpage(URI pageURI) {
         this(pageURI, new ArrayList<>());
     }
+
+    /**
+     * String will be parsed to URI throws an exception if string is not a valid URI
+     *
+     * @param pageURI   the URI of the Website to load
+     * @param loadFilters   a list of filters to check before loading
+     * @throws URISyntaxException
+     */
     public Webpage(String pageURI, ArrayList<WebpageLoadFilter> loadFilters) throws URISyntaxException {
         this(new URI(pageURI), loadFilters);
     }
+    /**
+     * @param pageURI       the URI of the Website to load
+     * @param loadFilters   a list of filters to check before loading
+     */
     public Webpage(URI pageURI, ArrayList<WebpageLoadFilter> loadFilters) {
         this.pageURI = pageURI;
         this.loadFilters = loadFilters;
     }
 
+    /**
+     * Returns a JSONObject that contains:
+     * - URL
+     * - Title
+     * - Link count
+     * - Image count
+     * - Video count
+     * - Word count
+     * - Page Size in bytes
+     * - Load time in nanoseconds
+     * - Page hash (MD5 using the whole page)
+     *
+     * If and Exception occurred while loading the page:
+     * - URL
+     * - Error
+     *
+     * @return  a JSONObject representing the Information gathered from the Website
+     * @see     JSONObject
+     */
     public JSONObject asJSONObject() {
         JSONObject thisJSON = new JSONObject() {
             /**
@@ -99,6 +141,11 @@ public class Webpage {
         return thisJSON;
     }
 
+    /**
+     * Downloads the Website specified in the constructor
+     * and performs various analyses on it.
+     * This method may block for an extended amount of time.
+     */
     public void loadPage() {
         try {
             loadAttempted = true;
@@ -130,6 +177,11 @@ public class Webpage {
         }
     }
 
+    /**
+     * Initializes a child for every link in the Webpage,
+     * given that they don't have the same URL as this Webpage and are a valid http Url.
+     * Only creates a certain amount of children if setMaxChildrenPerPage() was used.
+     */
     private void initializeChildren() {
         for(Element link : links) {
             URI rawURI;
@@ -142,6 +194,8 @@ public class Webpage {
             URI resolvedChildURI = pageURI.resolve(rawURI);
             if(resolvedChildURI.equals(pageURI))
                 continue;
+            if(!Util.isValidHttpUrl(resolvedChildURI))
+                continue;
 
             Webpage child = new Webpage(resolvedChildURI, loadFilters);
             children.add(child);
@@ -151,14 +205,30 @@ public class Webpage {
         }
     }
 
+    /**
+     * Returns true if the loadPage() method of this object was called.
+     *
+     * @return  true if loadPage() was called
+     */
     public boolean loadingWasAttempted() {
         return loadAttempted;
     }
 
+    /**
+     * Returns true if loadPage() was called
+     * and was then aborted because the Webpage was rejected by a filter.
+     *
+     * @return  true if load was aborted by filter
+     */
     public boolean loadingWasPreventedByFilter() {
         return loadPreventedByFilter;
     }
 
+    /**
+     * Returns the Hex encoded MD5 hash of this page.
+     *
+     * @return  Hex MD5 of this page
+     */
     public String getPageHashString() {
         StringBuilder sb = new StringBuilder();
         for (byte b : pageHash) {
@@ -167,15 +237,23 @@ public class Webpage {
         return sb.toString();
     }
 
-
+    /**
+     * Sets the UserAgent header for all further requests in loadPage()
+     *
+     * @param agent String to send in the UserAgent header
+     */
     public static void setRequestUserAgent(String agent) {
         userAgent = agent;
     }
 
+    /**
+     * Sets the maximal amount of children the initializeChildren() method should create
+     *
+     * @param count max amount of children
+     */
     public static void setMaxChildrenPerPage(int count) {
         maxChildrenPerPage = count;
     }
-
 
     public ArrayList<Webpage> getChildren() {
         return children;
