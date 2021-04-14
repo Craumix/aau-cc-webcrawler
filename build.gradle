@@ -39,3 +39,18 @@ test {
 jacocoTestReport {
     dependsOn test
 }
+
+jar {
+    archiveFileName = '../../WebCrawler.jar'
+
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Main-Class": "crawler.Main"
+        )
+    }
+    from { configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) } } {
+        exclude 'META-INF', 'META-INF/**'
+    }
+}
