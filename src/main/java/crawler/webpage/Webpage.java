@@ -2,6 +2,7 @@ package crawler.webpage;
 
 import crawler.util.Util;
 import crawler.webpage.filter.WebpageLoadFilter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,11 +11,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -27,7 +30,7 @@ public class Webpage {
 
     private Elements links, images, videos;
     private int wordCount;
-    private boolean loadAttempted = false, loadPreventedByFilter = false;
+    private boolean loadAttempted, loadPreventedByFilter;
     private long pageSize, loadTimeInNanos;
     private String pageTitle;
     private byte[] pageHash;
@@ -35,7 +38,7 @@ public class Webpage {
     private Exception error;
 
     private ArrayList<Webpage> children = new ArrayList<>();
-    private ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
+    private ArrayList<WebpageLoadFilter> loadFilters ;
 
     /**
      * String will be parsed to URI throws an exception if string is not a valid URI
@@ -64,6 +67,7 @@ public class Webpage {
     public Webpage(String pageURI, ArrayList<WebpageLoadFilter> loadFilters) throws URISyntaxException {
         this(new URI(pageURI), loadFilters);
     }
+
     /**
      * @param pageURI       the URI of the Website to load
      * @param loadFilters   a list of filters to check before loading
@@ -85,12 +89,24 @@ public class Webpage {
      * @see     JSONObject
      */
     public JSONObject asJSONObject() {
-        JSONObject thisJSON = new JSONObject() {
-            /**
-             * https://stackoverflow.com/a/62476486
-             * changes the value of JSONObject.map to a LinkedHashMap in order to maintain
-             * order of keys.
-             */
+        JSONObject thisAsJSON = getJSONObjectWithOrderedKeys();
+
+        fillJSONObjectWithPageContent(thisAsJSON);
+
+        if (!thisAsJSON.has("error"))
+            fillJSONObjectWithChildren(thisAsJSON);
+
+        return thisAsJSON;
+    }
+
+    /**
+     * Generates a JSONObject with a LinkedHashMap instead of a Hashmap  in order to maintain order of keys. <br>
+     * https://stackoverflow.com/a/62476486
+     *
+     * @return JSONObject with ordered keys
+     */
+    private JSONObject getJSONObjectWithOrderedKeys() {
+        return new JSONObject() {
             @Override
             public JSONObject put(String key, Object value) throws JSONException {
                 try {
@@ -106,30 +122,48 @@ public class Webpage {
                 return super.put(key, value);
             }
         };
+    }
 
-        thisJSON.put("url", pageURI.toString());
+    /**
+     * Fills the given JSONObject. <br>
+     * with error <br>
+     * - url, error <br>
+     * without error <br>
+     * - url, title, lnkCount, imageCount, videoCount, wordCount, pageSize, nanoLoadTime, pageHash
+     *
+     * @param jsonToFill Webpage as JSONObject to be filled
+     */
+    private void fillJSONObjectWithPageContent(JSONObject jsonToFill) {
+        jsonToFill.put("url", pageURI.toString());
+
         if (error != null) {
-            thisJSON.put("error", error.getMessage());
-        } else {
-            thisJSON.put("title", pageTitle);
-            thisJSON.put("linkCount", links.size());
-            thisJSON.put("imageCount", images.size());
-            thisJSON.put("videoCount", videos.size());
-            thisJSON.put("wordCount", wordCount);
-            thisJSON.put("pageSize", pageSize);
-            thisJSON.put("nanoLoadTime", loadTimeInNanos);
-            thisJSON.put("pageHash", getPageHashString());
-
-            JSONArray childrenArr = new JSONArray();
-            for (Webpage child : children)
-                if (child.loadingWasAttempted() && !child.loadingWasPreventedByFilter())
-                    childrenArr.put(child.asJSONObject());
-
-            if (childrenArr.length() > 0)
-                thisJSON.put("children", childrenArr);
+            jsonToFill.put("error", error.getMessage());
+            return;
         }
 
-        return thisJSON;
+        jsonToFill.put("title", pageTitle);
+        jsonToFill.put("linkCount", links.size());
+        jsonToFill.put("imageCount", images.size());
+        jsonToFill.put("videoCount", videos.size());
+        jsonToFill.put("wordCount", wordCount);
+        jsonToFill.put("pageSize", pageSize);
+        jsonToFill.put("nanoLoadTime", loadTimeInNanos);
+        jsonToFill.put("pageHash", getPageHashString());
+    }
+
+    /**
+     * Takes the children of the Webpage and puts them as a JSON into jsonToFill
+     *
+     * @param jsonToFill Webpage as JSONObject to be filled
+     */
+    private void fillJSONObjectWithChildren(JSONObject jsonToFill) {
+        JSONArray childrenArr = new JSONArray();
+        for (Webpage child : children)
+            if (child.loadingWasAttempted() && !child.loadingWasPreventedByFilter())
+                childrenArr.put(child.asJSONObject());
+
+        if (childrenArr.length() > 0)
+            jsonToFill.put("children", childrenArr);
     }
 
     /**
@@ -138,16 +172,26 @@ public class Webpage {
      * This method may block for an extended amount of time.
      */
     public void loadPage() {
-        try {
-            loadAttempted = true;
+        loadAttempted = true;
 
-            for (WebpageLoadFilter filter : loadFilters) {
-                if (!filter.webpageShouldBeLoaded(pageURI)) {
-                    loadPreventedByFilter = true;
-                    return;
-                }
+        for (WebpageLoadFilter filter : loadFilters) {
+            if (!filter.webpageShouldBeLoaded(pageURI)) {
+                loadPreventedByFilter = true;
+                return;
             }
+        }
 
+        loadWebpageValuesIntoVariables();
+
+        if (error == null)
+            initializeChildren();
+    }
+
+    /**
+     * Queries Values from the url of this Webpage and loads them into the corresponding variables
+     */
+    private void loadWebpageValuesIntoVariables(){
+        try {
             long startTime = System.nanoTime();
             Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(userAgent).get();
             loadTimeInNanos = System.nanoTime() - startTime;
@@ -161,11 +205,10 @@ public class Webpage {
 
             MessageDigest md = MessageDigest.getInstance("MD5");
             pageHash = md.digest(pageDocument.html().getBytes(StandardCharsets.UTF_8));
-
-            initializeChildren();
         } catch (Exception e) {
             error = e;
         }
+
     }
 
     /**
