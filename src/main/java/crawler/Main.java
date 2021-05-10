@@ -7,6 +7,8 @@ import crawler.util.Util;
 import crawler.webpage.AsyncWebpageLoader;
 import crawler.webpage.Webpage;
 import org.apache.commons.cli.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -24,14 +26,15 @@ public class Main {
             BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36";
 
 
-    private static String rootUrl, outputFile;
+    private static String outputFile;
+    private static final ArrayList<String> rootUrls = new ArrayList<>();
     private static int maxDepth, threadCount, maxLinksPerPage;
     private static boolean omitDuplicates, spoofBrowser, respectRobotsTxt, outputIntoFile;
 
     private static Options cliOptions;
     private static CommandLine cmdLine;
 
-    private static Webpage rootPage;
+    private static final ArrayList<Webpage> rootPages = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
         initializeCliOptions();
@@ -44,8 +47,7 @@ public class Main {
 
         initializeRootPage();
 
-        AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, maxDepth, threadCount);
-        pageProcessor.loadPagesRecursively();
+        startLoadingPagesAsynchronously();
 
         printPages();
     }
@@ -55,7 +57,7 @@ public class Main {
      * @return  true if the help flag was set
      */
     private static boolean helpRequested() {
-        if (cmdLine.hasOption("help") || !cmdLine.hasOption("url")) {
+        if (cmdLine.hasOption("help") || !cmdLine.hasOption("urls")) {
             new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
             return true;
         }
@@ -67,15 +69,19 @@ public class Main {
      * @return  false when an error occurs
      */
     private static boolean parseCliOptions() {
-        rootUrl = cmdLine.getOptionValue("url");
-        if (!rootUrl.contains("://")) {
-            rootUrl = "http://" + rootUrl;
-            System.out.printf("No URL scheme given, assuming %s%n", rootUrl);
+        String[] rawRootUrls = cmdLine.getOptionValue("urls").split(",");
+        for (String rootUrl : rawRootUrls) {
+            if (!rootUrl.contains("://")) {
+                rootUrl = "http://" + rootUrl;
+                System.out.printf("No URL scheme given, assuming %s%n", rootUrl);
+            }
+            if (!Util.isValidHttpUrl(rootUrl)) {
+                System.err.printf("\"%s\" is not a valid Http URL!", cmdLine.getOptionValue("url"));
+                return false;
+            }
+            rootUrls.add(rootUrl);
         }
-        if (!Util.isValidHttpUrl(rootUrl)) {
-            System.err.printf("\"%s\" is not a valid Http URL!", cmdLine.getOptionValue("url"));
-            return false;
-        }
+
 
         maxDepth = Integer.parseInt(cmdLine.getOptionValue("max-depth", DEFAULT_DEPTH + ""));
         if (maxDepth < 1 || maxDepth > MAX_DEPTH) {
@@ -128,7 +134,7 @@ public class Main {
         options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-%d", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
         options.addOption("l",  "max-links",        true, String.format("Max amount of links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
         options.addOption("d",  "max-depth",        true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-%d", DEFAULT_DEPTH, MAX_DEPTH));
-        options.addOption("u",  "url",              true,   "Specify the root url for the crawler");
+        options.addOption("u",  "urls",             true,   "Specify the root urls for the crawler. Multiple urls must be comma separated");
         options.addOption("o",  "output",           true,   "Specify a Output File as alternative to stdout");
         options.addOption("s",  "omit-duplicates",  false,  "If set, omits duplicate pages");
         options.addOption("b",  "spoof-browser",    false,  "If set, spoofs the UserAgent (in case some sites block the default UserAgent)");
@@ -151,7 +157,8 @@ public class Main {
         if (respectRobotsTxt)
             loadFilters.add(new RobotsLoadFilter());
 
-        rootPage = new Webpage(rootUrl, loadFilters);
+        for (String rootUrl : rootUrls)
+            rootPages.add(new Webpage(rootUrl, loadFilters));
     }
 
     /**
@@ -159,27 +166,55 @@ public class Main {
      * or into System.out.
      */
     private static void printPages() {
-        String jsonString = rootPage.asJSONObject().toString(2);
+
+        String rootPagesAsJSONString = getRootPagesAsJsonString();
 
         if (outputIntoFile) {
-            FileWriter fw = null;
+            FileWriter fileWriter = null;
             try {
-                fw = new FileWriter(outputFile, false);
-                fw.write(jsonString);
-                fw.flush();
+                fileWriter = new FileWriter(outputFile, false);
+                fileWriter.write(rootPagesAsJSONString);
+                fileWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (fw != null) {
+                if (fileWriter != null) {
                     try {
-                        fw.close();
+                        fileWriter.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
         } else {
-            System.out.println(jsonString);
+            System.out.println(rootPagesAsJSONString);
         }
+    }
+
+    /**
+     * Starts an {@link AsyncWebpageLoader} for every rootPage
+     * @throws InterruptedException
+     */
+    private static void startLoadingPagesAsynchronously() throws InterruptedException {
+        for (Webpage rootPage : rootPages) {
+            AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, maxDepth, threadCount);
+            pageProcessor.loadPagesRecursively();
+        }
+    }
+
+    /**
+     * Generates a JSON with all of the JSON representations of the rootPages in the field urls
+     * @return A String of the generated JSONObject
+     */
+    private static String getRootPagesAsJsonString() {
+        JSONArray rootPagesJSONArray = new JSONArray();
+        for (Webpage rootPage : rootPages) {
+            rootPagesJSONArray.put(rootPage.asJSONObject());
+        }
+
+        JSONObject rootPagesAsJSON = new JSONObject();
+        rootPagesAsJSON.put("urls", rootPagesJSONArray);
+
+        return rootPagesAsJSON.toString(2);
     }
 }
