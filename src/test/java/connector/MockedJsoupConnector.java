@@ -13,6 +13,11 @@ public class MockedJsoupConnector implements Connector {
         location = location.replaceFirst("https://", "");
         location = location.replaceFirst("http://", "");
 
+        location = location.replaceFirst("\\.test","");
+
+        if (location.endsWith(".error"))
+            throw new IOException(location);
+
         return Jsoup.parse(new File(String.format("src/test/java/connector/test-sites/%s.html",location)), null);
     }
 
