@@ -1,7 +1,5 @@
 package crawler.webpage.filter;
 
-import crawler.util.Util;
-
 import java.net.URI;
 import java.util.concurrent.CopyOnWriteArrayList;
 

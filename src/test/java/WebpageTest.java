@@ -1,6 +1,6 @@
-import connector.MockedJsoupConnector;
+import connector.LocalFileFetcher;
 import crawler.webpage.Webpage;
-import crawler.webpage.connector.JsoupConnector;
+import crawler.webpage.fetcher.JsoupFetcher;
 import crawler.webpage.filter.WebpageLoadFilter;
 import jdk.jfr.Description;
 import org.json.JSONArray;
@@ -21,7 +21,7 @@ public class WebpageTest {
 
     @BeforeEach
     void setup() {
-        Webpage.setConnector(new MockedJsoupConnector());
+        Webpage.setConnector(new LocalFileFetcher());
     }
 
     @AfterEach
@@ -52,7 +52,7 @@ public class WebpageTest {
     @Test
     @Description("Test if a user agent can be set")
     void testUserAgent() {
-        Webpage.setConnector(new JsoupConnector());
+        Webpage.setConnector(new JsoupFetcher());
 
         String expectedResult = "abc";
 

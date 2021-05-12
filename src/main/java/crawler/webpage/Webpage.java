@@ -1,8 +1,8 @@
 package crawler.webpage;
 
 import crawler.util.Util;
-import crawler.webpage.connector.Connector;
-import crawler.webpage.connector.JsoupConnector;
+import crawler.webpage.fetcher.Fetcher;
+import crawler.webpage.fetcher.JsoupFetcher;
 import crawler.webpage.filter.WebpageLoadFilter;
 
 import org.json.JSONArray;
@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class Webpage {
+    private static String userAgent = "Java/" + System.getProperty("java.version");
     private static int maxChildrenPerPage = Integer.MAX_VALUE;
 
-    private static Connector connector = new JsoupConnector();;
+    private static Fetcher fetcher = new JsoupFetcher();
 
     private final URI pageURI;
 
@@ -192,7 +193,7 @@ public class Webpage {
     private void loadWebpageValuesIntoVariables(){
         try {
             long startTime = System.nanoTime();
-            Document pageDocument = connector.getDocument(pageURI.toString());
+            Document pageDocument = fetcher.fetchDocument(pageURI.toString(), userAgent);
             loadTimeInNanos = System.nanoTime() - startTime;
 
             pageTitle = pageDocument.title();
@@ -276,7 +277,7 @@ public class Webpage {
      * @param agent String to send in the UserAgent header
      */
     public static void setRequestUserAgent(String agent) {
-        connector.setUserAgent(agent);
+        Webpage.userAgent = agent;
     }
 
     /**
@@ -288,8 +289,8 @@ public class Webpage {
         maxChildrenPerPage = count;
     }
 
-    public static void setConnector(Connector newConnector) {
-        Webpage.connector = newConnector;
+    public static void setConnector(Fetcher newFetcher) {
+        Webpage.fetcher = newFetcher;
     }
 
     public ArrayList<Webpage> getChildren() {
@@ -317,7 +318,7 @@ public class Webpage {
     }
 
     public static String getUserAgent() {
-        return connector.getUserAgent();
+        return Webpage.userAgent;
     }
 
     public static int getMaxChildrenPerPage() {
