@@ -1,8 +1,6 @@
 import connector.LocalFileFetcher;
 import crawler.webpage.Webpage;
-import crawler.webpage.fetcher.JsoupFetcher;
 import crawler.webpage.filter.WebpageLoadFilter;
-import jdk.jfr.Description;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +28,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test whether the generation of the page-hash works correctly")
+    @DisplayName("Test whether the generation of the page-hash works correctly")
     void testPageHashString() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
 
@@ -40,7 +38,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test if maxChildren can be set")
+    @DisplayName("Test if maxChildren can be set")
     void testMaxChildrenPerPage() {
         int expectedResult = 58;
 
@@ -50,10 +48,8 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test if a user agent can be set")
+    @DisplayName("Test if a user agent can be set")
     void testUserAgent() {
-        Webpage.setConnector(new JsoupFetcher());
-
         String expectedResult = "abc";
 
         Webpage.setRequestUserAgent(expectedResult);
@@ -63,7 +59,7 @@ public class WebpageTest {
 
 
     @Test
-    @Description("Test if image links in a page get loaded correctly")
+    @DisplayName("Test if image links in a page get loaded correctly")
     void testImages() throws URISyntaxException {
         Webpage webpage = new Webpage("4-images");
 
@@ -81,7 +77,7 @@ public class WebpageTest {
 
 
     @Test
-    @Description("Test if links in a page get loaded correctly")
+    @DisplayName("Test if links in a page get loaded correctly")
     void testLinks() throws URISyntaxException {
         Webpage webpage = new Webpage("4-links");
 
@@ -99,7 +95,7 @@ public class WebpageTest {
 
 
     @Test
-    @Description("Test if the page size gets calculated correctly")
+    @DisplayName("Test if the page size gets calculated correctly")
     void testPageSize() throws URISyntaxException {
         Webpage webpage = new Webpage("big-pagesize");
 
@@ -110,7 +106,7 @@ public class WebpageTest {
 
 
     @Test
-    @Description("Test if the page title gets set correctly")
+    @DisplayName("Test if the page title gets set correctly")
     void testPageTitle() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
 
@@ -120,7 +116,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test an empty page title gets set correctly")
+    @DisplayName("Test an empty page title gets set correctly")
     void testPageTitleEmpty() throws URISyntaxException {
         Webpage webpage = new Webpage("no-pagetitle");
 
@@ -130,7 +126,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test if a missing page title gets set correctly")
+    @DisplayName("Test if a missing page title gets set correctly")
     void testPageTitleMissing() throws URISyntaxException {
         Webpage webpage = new Webpage("pagetitle-missing");
 
@@ -141,7 +137,7 @@ public class WebpageTest {
 
 
     @Test
-    @Description("Test if it counts words correctly")
+    @DisplayName("Test if it counts words correctly")
     void testWordCount() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
 
@@ -151,7 +147,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test if it counts words correctly with hyphens involved")
+    @DisplayName("Test if it counts words correctly with hyphens involved")
     void testWordCountWordWithHyphen() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words-hyphen");
 
@@ -161,7 +157,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test if it counts words correctly with numbers involved")
+    @DisplayName("Test if it counts words correctly with numbers involved")
     void testWordCountNumber() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words-numbers");
 
@@ -171,7 +167,7 @@ public class WebpageTest {
     }
 
     @Test
-    @Description("Test if it counts words correctly with symbols involved")
+    @DisplayName("Test if it counts words correctly with symbols involved")
     void testWordCountSymbols() throws URISyntaxException {
         Webpage webpage = new Webpage("10-symbols");
 
@@ -220,8 +216,7 @@ public class WebpageTest {
     @Test
     @DisplayName("Test if the JSONObject correctly errors out when the website doesn't exist")
     void testJSONtoStringError() throws URISyntaxException {
-        String testWebsite = "https://a.error";
-        Webpage webpage = new Webpage(testWebsite);
+        Webpage webpage = new Webpage("https://a.error");
 
         webpage.loadPage();
 
