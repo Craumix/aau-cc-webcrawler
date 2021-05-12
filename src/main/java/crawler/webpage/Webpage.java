@@ -1,30 +1,29 @@
 package crawler.webpage;
 
 import crawler.util.Util;
+import crawler.webpage.connector.Connector;
+import crawler.webpage.connector.JsoupConnector;
 import crawler.webpage.filter.WebpageLoadFilter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class Webpage {
-
-    private static String userAgent = "Java/" + System.getProperty("java.version");
     private static int maxChildrenPerPage = Integer.MAX_VALUE;
+
+    private static Connector connector = new JsoupConnector();;
 
     private final URI pageURI;
 
@@ -193,7 +192,7 @@ public class Webpage {
     private void loadWebpageValuesIntoVariables(){
         try {
             long startTime = System.nanoTime();
-            Document pageDocument = Jsoup.connect(pageURI.toString()).userAgent(userAgent).get();
+            Document pageDocument = connector.getDocument(pageURI.toString());
             loadTimeInNanos = System.nanoTime() - startTime;
 
             pageTitle = pageDocument.title();
@@ -277,7 +276,7 @@ public class Webpage {
      * @param agent String to send in the UserAgent header
      */
     public static void setRequestUserAgent(String agent) {
-        userAgent = agent;
+        connector.setUserAgent(agent);
     }
 
     /**
@@ -287,6 +286,10 @@ public class Webpage {
      */
     public static void setMaxChildrenPerPage(int count) {
         maxChildrenPerPage = count;
+    }
+
+    public static void setConnector(Connector newConnector) {
+        Webpage.connector = newConnector;
     }
 
     public ArrayList<Webpage> getChildren() {
@@ -314,7 +317,7 @@ public class Webpage {
     }
 
     public static String getUserAgent() {
-        return userAgent;
+        return connector.getUserAgent();
     }
 
     public static int getMaxChildrenPerPage() {
