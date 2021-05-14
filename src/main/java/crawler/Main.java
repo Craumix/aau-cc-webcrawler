@@ -1,12 +1,11 @@
 package crawler;
 
+import crawler.argumentparser.OptionsArgumentParser;
 import crawler.webpage.filter.DuplicateLoadFilter;
 import crawler.webpage.filter.RobotsLoadFilter;
 import crawler.webpage.filter.WebpageLoadFilter;
-import crawler.util.Util;
 import crawler.webpage.AsyncWebpageLoader;
 import crawler.webpage.Webpage;
-import org.apache.commons.cli.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,35 +14,31 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class Main {
-    private static final int
-            DEFAULT_DEPTH = 2,
-            MAX_DEPTH = 10,
-            DEFAULT_THREAD_COUNT = 2,
-            MAX_THREAD_COUNT = 1024,
-            DEFAULT_MAX_LINKS_PER_PAGE = 100;
     private static final String
             DEFAULT_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)",
             BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36";
 
-
-    private static String outputFile;
-    private static final ArrayList<String> rootUrls = new ArrayList<>();
-    private static int maxDepth, threadCount, maxLinksPerPage;
-    private static boolean omitDuplicates, spoofBrowser, respectRobotsTxt, outputIntoFile;
-
-    private static Options cliOptions;
-    private static CommandLine cmdLine;
+    private static final OptionsArgumentParser parser = new OptionsArgumentParser();
 
     private static final ArrayList<Webpage> rootPages = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
-        initializeCliOptions();
-        cmdLine = new DefaultParser().parse(cliOptions, args);
 
-        if (helpRequested())
-            System.exit(0);
-        if (!parseCliOptions())
+        if (!parser.parseArgs(args) && !parser.helpRequested()) {
+            System.out.println(parser.getWarnings());
+            System.err.println(parser.getErrorMessage());
             System.exit(1);
+        }
+
+        if (parser.helpRequested()) {
+            System.out.println(parser.getHelpDialog());
+            System.exit(0);
+        }
+
+        System.out.println(parser.getWarnings());
+
+        if (parser.outputIntoFile())
+            printWarningIfFileIsntJSON();
 
         initializeRootPage();
 
@@ -53,72 +48,11 @@ public class Main {
     }
 
     /**
-     * Checks if the help flag was set and if it was prints the help dialog.
-     * @return  true if the help flag was set
-     */
-    private static boolean helpRequested() {
-        if (cmdLine.hasOption("help") || !cmdLine.hasOption("urls")) {
-            new HelpFormatter().printHelp("Webcrawler", cliOptions, true);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Parse the command line options into variables.
-     * @return  false when an error occurs
-     */
-    private static boolean parseCliOptions() {
-        String[] rawRootUrls = cmdLine.getOptionValue("urls").split(",");
-        for (String rootUrl : rawRootUrls) {
-            if (!rootUrl.contains("://")) {
-                rootUrl = "http://" + rootUrl;
-                System.out.printf("No URL scheme given, assuming %s%n", rootUrl);
-            }
-            if (!Util.isValidHttpUrl(rootUrl)) {
-                System.err.printf("\"%s\" is not a valid Http URL!", cmdLine.getOptionValue("url"));
-                return false;
-            }
-            rootUrls.add(rootUrl);
-        }
-
-
-        maxDepth = Integer.parseInt(cmdLine.getOptionValue("max-depth", DEFAULT_DEPTH + ""));
-        if (maxDepth < 1 || maxDepth > MAX_DEPTH) {
-            System.err.printf("%d is not a valid search depth", maxDepth);
-            return false;
-        }
-
-        threadCount = Integer.parseInt(cmdLine.getOptionValue("threads", DEFAULT_THREAD_COUNT + ""));
-        if (threadCount < 1 || threadCount > MAX_THREAD_COUNT) {
-            System.err.printf("%d is not a valid Thread count", threadCount);
-            return false;
-        }
-
-        maxLinksPerPage = Integer.parseInt(cmdLine.getOptionValue("max-links", DEFAULT_MAX_LINKS_PER_PAGE + ""));
-        if (maxLinksPerPage < 1) {
-            System.err.print("Max links to follow should be > 1");
-            return false;
-        }
-
-        omitDuplicates = cmdLine.hasOption("omit-duplicates");
-        spoofBrowser = cmdLine.hasOption("fake-browser");
-        respectRobotsTxt = !cmdLine.hasOption("ignore-robots-txt");
-        outputFile = cmdLine.getOptionValue("output","");
-        outputIntoFile = !outputFile.equals("");
-
-        if (outputIntoFile)
-            printWarningIfFileIsntJSON();
-
-        return true;
-    }
-
-    /**
      * Prints a warning if the specified output file isn't a .json file.
      */
     private static void printWarningIfFileIsntJSON() {
-        if (!outputFile.endsWith(".json")) {
-            String filename = outputFile;
+        if (!parser.getOutputFile().endsWith(".json")) {
+            String filename = parser.getOutputFile();
             if (filename.contains("."))
                 filename = filename.substring(0, filename.lastIndexOf("."));
 
@@ -127,37 +61,20 @@ public class Main {
     }
 
     /**
-     * Load command line options.
-     */
-    private static void initializeCliOptions() {
-        Options options = new Options();
-        options.addOption("t",  "threads",          true, String.format("Amount of threads to use, will increase CPU and Memory consumption. Default: %d, Range 1-%d", DEFAULT_THREAD_COUNT, MAX_THREAD_COUNT));
-        options.addOption("l",  "max-links",        true, String.format("Max amount of links to follow per page. Default: %d, Range: 1-inf", DEFAULT_MAX_LINKS_PER_PAGE));
-        options.addOption("d",  "max-depth",        true, String.format("Specify the recursion depth for following links. Default: %d, Range 1-%d", DEFAULT_DEPTH, MAX_DEPTH));
-        options.addOption("u",  "urls",             true,   "Specify the root urls for the crawler. Multiple urls must be comma separated");
-        options.addOption("o",  "output",           true,   "Specify a Output File as alternative to stdout");
-        options.addOption("s",  "omit-duplicates",  false,  "If set, omits duplicate pages");
-        options.addOption("b",  "spoof-browser",    false,  "If set, spoofs the UserAgent (in case some sites block the default UserAgent)");
-        options.addOption("r",  "ignore-robots-txt",false,  "If set, ignores robots.txt");
-        options.addOption("h",  "help",             false,  "Open the help dialog");
-        cliOptions = options;
-    }
-
-    /**
      * Loads the root page with the specified filters, user agent and links per page.
-     * @throws URISyntaxException
+     * @throws URISyntaxException If the given string violates RFC 2396
      */
     private static void initializeRootPage() throws URISyntaxException {
-        Webpage.setRequestUserAgent(spoofBrowser ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
-        Webpage.setMaxChildrenPerPage(maxLinksPerPage);
+        Webpage.setRequestUserAgent(parser.spoofBrowser() ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
+        Webpage.setMaxChildrenPerPage(parser.getMaxLinksPerPage());
 
         ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
-        if (omitDuplicates)
+        if (parser.omitDuplicates())
             loadFilters.add(new DuplicateLoadFilter());
-        if (respectRobotsTxt)
+        if (parser.respectRobotsTxt())
             loadFilters.add(new RobotsLoadFilter());
 
-        for (String rootUrl : rootUrls)
+        for (String rootUrl : parser.getRootUrls())
             rootPages.add(new Webpage(rootUrl, loadFilters));
     }
 
@@ -169,10 +86,10 @@ public class Main {
 
         String rootPagesAsJSONString = getRootPagesAsJsonString();
 
-        if (outputIntoFile) {
+        if (parser.outputIntoFile()) {
             FileWriter fileWriter = null;
             try {
-                fileWriter = new FileWriter(outputFile, false);
+                fileWriter = new FileWriter(parser.getOutputFile(), false);
                 fileWriter.write(rootPagesAsJSONString);
                 fileWriter.flush();
             } catch (IOException e) {
@@ -197,7 +114,7 @@ public class Main {
      */
     private static void startLoadingPagesAsynchronously() throws InterruptedException {
         for (Webpage rootPage : rootPages) {
-            AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, maxDepth, threadCount);
+            AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, parser.getMaxDepth(), parser.getThreadCount());
             pageProcessor.loadPagesRecursively();
         }
     }
@@ -213,7 +130,7 @@ public class Main {
         }
 
         JSONObject rootPagesAsJSON = new JSONObject();
-        rootPagesAsJSON.put("urls", rootPagesJSONArray);
+        rootPagesAsJSON.put("webpages", rootPagesJSONArray);
 
         return rootPagesAsJSON.toString(2);
     }
