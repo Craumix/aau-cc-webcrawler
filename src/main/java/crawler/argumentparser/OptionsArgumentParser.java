@@ -76,7 +76,7 @@ public class OptionsArgumentParser implements ArgumentParser{
 
     private void parseThreadCount() throws ParseException {
         threadCount = Integer.parseInt(cmdLine.getOptionValue("thread-count", DEFAULT_THREAD_COUNT + ""));
-        if (threadCount < 1)
+        if (threadCount < 1 || threadCount > MAX_THREAD_COUNT)
             throw new ParseException(String.format("%d is not a valid number of threads", threadCount));
     }
 
@@ -139,7 +139,7 @@ public class OptionsArgumentParser implements ArgumentParser{
 
     @Override
     public boolean respectRobotsTxt() {
-        return cmdLine != null && !cmdLine.hasOption("ignore-robots-txt");
+        return cmdLine == null || !cmdLine.hasOption("ignore-robots-txt");
     }
 
     @Override
