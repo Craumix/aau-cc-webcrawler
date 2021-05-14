@@ -15,13 +15,13 @@ public class OptionsArgumentParser implements ArgumentParser{
             MAX_THREAD_COUNT = 1024,
             DEFAULT_MAX_LINKS_PER_PAGE = 100;
 
-    private static final Options cliOptions = initializeCliOptions();
-    private static CommandLine cmdLine;
+    private final Options cliOptions = initializeCliOptions();
+    private CommandLine cmdLine;
 
-    private static String errorMessage;
-    private static int maxDepth, maxLinksPerPage, threadCount;
-    private static final ArrayList<String> rootUrls = new ArrayList<>();
-    private static final ArrayList<String> warnings = new ArrayList<>();
+    private String errorMessage;
+    private int maxDepth, maxLinksPerPage, threadCount;
+    private final ArrayList<String> rootUrls = new ArrayList<>();
+    private final ArrayList<String> warnings = new ArrayList<>();
 
     @Override
     public boolean parseArgs(String[] args) {
