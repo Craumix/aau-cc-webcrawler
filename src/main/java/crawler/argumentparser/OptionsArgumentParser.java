@@ -18,7 +18,7 @@ public class OptionsArgumentParser implements ArgumentParser{
     private final Options cliOptions = initializeCliOptions();
     private CommandLine cmdLine;
 
-    private String errorMessage;
+    private String errorMessage = "";
     private int maxDepth, maxLinksPerPage, threadCount;
     private final ArrayList<String> rootUrls = new ArrayList<>();
     private final ArrayList<String> warnings = new ArrayList<>();

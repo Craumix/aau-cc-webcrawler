@@ -27,7 +27,7 @@ public class OptionsArgumentParserTest {
         defaultArgs.add("-t");
         defaultArgs.add("10");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertEquals(10, parser.getThreadCount());
     }
@@ -68,12 +68,22 @@ public class OptionsArgumentParserTest {
     }
 
     @Test
+    @DisplayName("Test if the error message is correct when thread count has no argument")
+    void testThreadCountNoArgumentErrorMessage() {
+        defaultArgs.add("-t");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+
+        assertEquals("Missing argument for option: t", parser.getErrorMessage());
+    }
+
+    @Test
     @DisplayName("Test if setting max depth works")
     void testMaxDepth() {
         defaultArgs.add("-d");
         defaultArgs.add("5");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertEquals(5, parser.getMaxDepth());
     }
@@ -114,12 +124,22 @@ public class OptionsArgumentParserTest {
     }
 
     @Test
+    @DisplayName("Test if the error message is correct when max depth has no argument")
+    void testMaxDepthNoArgumentErrorMessage() {
+        defaultArgs.add("-d");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+
+        assertEquals("Missing argument for option: d", parser.getErrorMessage());
+    }
+
+    @Test
     @DisplayName("Test if setting max links works")
     void testMaxLinks() {
         defaultArgs.add("-l");
         defaultArgs.add("5");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertEquals(5, parser.getMaxLinksPerPage());
     }
@@ -148,6 +168,16 @@ public class OptionsArgumentParserTest {
         defaultArgs.add("-l");
 
         assertFalse(parser.parseArgs(toArray(defaultArgs)));
+    }
+
+    @Test
+    @DisplayName("Test if the error message is correct when max links has no argument")
+    void testMaxLinksNoArgumentErrorMessage() {
+        defaultArgs.add("-l");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+
+        assertEquals("Missing argument for option: l", parser.getErrorMessage());
     }
 
     @Test
@@ -222,15 +252,37 @@ public class OptionsArgumentParserTest {
         assertFalse(parser.parseArgs(toArray(args)));
     }
 
+    @Test
+    @DisplayName("Test if the error message is correct when urls has no argument")
+    void testUrlNoArgumentErrorMessage() {
+        ArrayList<String> args = new ArrayList<>();
+        args.add("-u");
 
+        assertFalse(parser.parseArgs(toArray(args)));
 
+        assertEquals("Missing argument for option: u", parser.getErrorMessage());
+    }
+
+    @Test
+    @DisplayName("Test if the scheme adding warning gets added")
+    void testUrlWarning() {
+        ArrayList<String> args = new ArrayList<>();
+        args.add("-u");
+        args.add("website.com");
+
+        parser.parseArgs(toArray(args));
+
+        String expectedResult = "No URL scheme given, assuming https://website.com\n";
+
+        assertEquals(expectedResult, parser.getWarnings());
+    }
 
     @Test
     @DisplayName("Test if the help flag gets set correctly")
     void testHelp() {
         defaultArgs.add("-h");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertTrue(parser.helpRequested());
     }
@@ -238,7 +290,7 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if the helpRequested() is false when the help flag is not set")
     void testHelpNotSet() {
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertFalse(parser.helpRequested());
     }
@@ -254,7 +306,7 @@ public class OptionsArgumentParserTest {
     void testOmitDuplicates() {
         defaultArgs.add("-s");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertTrue(parser.omitDuplicates());
     }
@@ -262,7 +314,7 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if the omitDuplicates() is false when the omit-duplicates flag is not set")
     void testOmitDuplicatesNotSet() {
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertFalse(parser.omitDuplicates());
     }
@@ -278,7 +330,7 @@ public class OptionsArgumentParserTest {
     void testSpoofBrowser() {
         defaultArgs.add("-b");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertTrue(parser.spoofBrowser());
     }
@@ -286,7 +338,7 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if the spoofBrowser() is false when the spoof browser flag is not set")
     void testSpoofBrowseNotSet() {
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertFalse(parser.spoofBrowser());
     }
@@ -302,7 +354,7 @@ public class OptionsArgumentParserTest {
     void testIgnoreRobots() {
         defaultArgs.add("-r");
 
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertFalse(parser.respectRobotsTxt());
     }
@@ -310,7 +362,7 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if the respectRobotsTxt() is true when the ignore robots flag is not set")
     void testIgnoreRobotsNotSet() {
-        parser.parseArgs(toArray(defaultArgs));
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertTrue(parser.respectRobotsTxt());
     }
@@ -320,6 +372,75 @@ public class OptionsArgumentParserTest {
     void testIgnoreRobotsWithoutParsing() {
         assertTrue(parser.respectRobotsTxt());
     }
+
+    @Test
+    @DisplayName("Test if setting a output file works")
+    void testOutputFile() {
+        defaultArgs.add("-o");
+        defaultArgs.add("file.txt");
+
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+
+        assertEquals("file.txt", parser.getOutputFile());
+    }
+
+    @Test
+    @DisplayName("Test if an empty String gets returned when the output file is not set")
+    void testOutputFileNotSet() {
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+
+        assertEquals("", parser.getOutputFile());
+    }
+
+    @Test
+    @DisplayName("Test if parseArgs() returns false output file doesn't have an argument")
+    void testOutputFileNoArgument() {
+        defaultArgs.add("-o");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+    }
+
+    @Test
+    @DisplayName("Test if the error message is correct when output file has no argument")
+    void testOutputFileNoArgumentErrorMessage() {
+        defaultArgs.add("-o");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+
+        assertEquals("Missing argument for option: o", parser.getErrorMessage());
+    }
+
+    @Test
+    @DisplayName("Test if outputIntoFile() is true when an output is set")
+    void testOutputIntoFile() {
+        defaultArgs.add("-o");
+        defaultArgs.add("file.txt");
+
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+
+        assertTrue(parser.outputIntoFile());
+    }
+
+    @Test
+    @DisplayName("Test if the outputIntoFile() is false when the omit-duplicates flag is not set")
+    void testOutputIntoFileNotSet() {
+        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+
+        assertFalse(parser.outputIntoFile());
+    }
+
+    @Test
+    @DisplayName("Test if the outputIntoFile() is false when the arguments weren't parsed yet")
+    void testOutputIntoFileWithoutParsing() {
+        assertFalse(parser.spoofBrowser());
+    }
+    
+    @Test
+    @DisplayName("Test if errorMessage is an empty String when no error has happened")
+    void testErrorMessageNoError() {
+        assertEquals("", parser.getErrorMessage());
+    }
+
 
 
 
