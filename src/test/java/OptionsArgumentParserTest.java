@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,37 +75,56 @@ public class OptionsArgumentParserTest {
         assertFalse(parser.parseArgs(toArray(defaultArgs)));
     }
 
-    @Test
-    @DisplayName("Test if setting a thread count works")
-    void testThreadCount() {
-        defaultArgs.add("-t");
-        defaultArgs.add("10");
+    @ParameterizedTest
+    @DisplayName("Test if setting a argument for an option works")
+    @CsvSource({"t,10,getThreadCount", "d,5,getMaxDepth", "l,5,getMaxLinksPerPage"})
+    void testSettingArgumentForOption(String option, int arg, String method) throws Exception {
+        defaultArgs.add("-" + option);
+        defaultArgs.add(String.valueOf(arg));
 
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+        parser.parseArgs(toArray(defaultArgs));
 
-        assertEquals(10, parser.getThreadCount());
+        Method actualMethod = Class.forName(parser.getClass().getName()).getDeclaredMethod(method);
+        int actualResult = (int) actualMethod.invoke(parser);
+
+        assertEquals(arg, actualResult);
     }
 
-    @Test
-    @DisplayName("Test if setting max depth works")
-    void testMaxDepth() {
-        defaultArgs.add("-d");
-        defaultArgs.add("5");
+    @ParameterizedTest
+    @DisplayName("Test if boolean methods have the correct default value")
+    @CsvSource({"helpRequested,false", "spoofBrowser,false", "respectRobotsTxt,true", "omitDuplicates,false", "outputIntoFile,false"})
+    void testDefaultValueBooleanMethods(String method, boolean expectedResult) throws Exception{
 
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+        Method actualMethod = Class.forName(parser.getClass().getName()).getDeclaredMethod(method);
+        boolean actualResult = (boolean) actualMethod.invoke(parser);
 
-        assertEquals(5, parser.getMaxDepth());
+        assertEquals(expectedResult, actualResult);
     }
 
-    @Test
-    @DisplayName("Test if setting max links works")
-    void testMaxLinks() {
-        defaultArgs.add("-l");
-        defaultArgs.add("5");
+    @ParameterizedTest
+    @DisplayName("Test if boolean methods have the correct value when not set but parsed")
+    @CsvSource({"helpRequested,false", "spoofBrowser,false", "respectRobotsTxt,true", "omitDuplicates,false", "outputIntoFile,false"})
+    void testDefaultValueAfterParsingBooleanMethods(String method, boolean expectedResult) throws Exception{
+        parser.parseArgs(toArray(defaultArgs));
 
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
+        Method actualMethod = Class.forName(parser.getClass().getName()).getDeclaredMethod(method);
+        boolean actualResult = (boolean) actualMethod.invoke(parser);
 
-        assertEquals(5, parser.getMaxLinksPerPage());
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @ParameterizedTest
+    @DisplayName("Test if boolean methods have the correct value when their respective flag is set")
+    @CsvSource({"h,helpRequested,true", "b,spoofBrowser,true", "r,respectRobotsTxt,false", "s,omitDuplicates,true"})
+    void testSetBooleanMethods(String option, String method, boolean expectedResult) throws Exception{
+        defaultArgs.add("-" + option);
+
+        parser.parseArgs(toArray(defaultArgs));
+
+        Method actualMethod = Class.forName(parser.getClass().getName()).getDeclaredMethod(method);
+        boolean actualResult = (boolean) actualMethod.invoke(parser);
+
+        assertEquals(expectedResult, actualResult);
     }
 
     @Test
@@ -205,102 +225,6 @@ public class OptionsArgumentParserTest {
     }
 
     @Test
-    @DisplayName("Test if the help flag gets set correctly")
-    void testHelp() {
-        defaultArgs.add("-h");
-
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertTrue(parser.helpRequested());
-    }
-
-    @Test
-    @DisplayName("Test if the helpRequested() is false when the help flag is not set")
-    void testHelpNotSet() {
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertFalse(parser.helpRequested());
-    }
-
-    @Test
-    @DisplayName("Test if the helpRequested() is false when the arguments weren't parsed yet")
-    void testHelpWithoutParsing() {
-        assertFalse(parser.helpRequested());
-    }
-
-    @Test
-    @DisplayName("Test if the omit-duplicates flag gets set correctly")
-    void testOmitDuplicates() {
-        defaultArgs.add("-s");
-
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertTrue(parser.omitDuplicates());
-    }
-
-    @Test
-    @DisplayName("Test if the omitDuplicates() is false when the omit-duplicates flag is not set")
-    void testOmitDuplicatesNotSet() {
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertFalse(parser.omitDuplicates());
-    }
-
-    @Test
-    @DisplayName("Test if the omitDuplicates() is false when the arguments weren't parsed yet")
-    void testOmitDuplicatesWithoutParsing() {
-        assertFalse(parser.omitDuplicates());
-    }
-
-    @Test
-    @DisplayName("Test if the spoof browser flag gets set correctly")
-    void testSpoofBrowser() {
-        defaultArgs.add("-b");
-
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertTrue(parser.spoofBrowser());
-    }
-
-    @Test
-    @DisplayName("Test if the spoofBrowser() is false when the spoof browser flag is not set")
-    void testSpoofBrowseNotSet() {
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertFalse(parser.spoofBrowser());
-    }
-
-    @Test
-    @DisplayName("Test if the spoofBrowser() is false when the arguments weren't parsed yet")
-    void testSpoofBrowseWithoutParsing() {
-        assertFalse(parser.spoofBrowser());
-    }
-
-    @Test
-    @DisplayName("Test if the ignore robots flag gets set correctly")
-    void testIgnoreRobots() {
-        defaultArgs.add("-r");
-
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertFalse(parser.respectRobotsTxt());
-    }
-
-    @Test
-    @DisplayName("Test if the respectRobotsTxt() is true when the ignore robots flag is not set")
-    void testIgnoreRobotsNotSet() {
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertTrue(parser.respectRobotsTxt());
-    }
-
-    @Test
-    @DisplayName("Test if the respectRobotsTxt() is true when the arguments weren't parsed yet")
-    void testIgnoreRobotsWithoutParsing() {
-        assertTrue(parser.respectRobotsTxt());
-    }
-
-    @Test
     @DisplayName("Test if setting a output file works")
     void testOutputFile() {
         defaultArgs.add("-o");
@@ -329,20 +253,6 @@ public class OptionsArgumentParserTest {
         assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertTrue(parser.outputIntoFile());
-    }
-
-    @Test
-    @DisplayName("Test if the outputIntoFile() is false when the omit-duplicates flag is not set")
-    void testOutputIntoFileNotSet() {
-        assertTrue(parser.parseArgs(toArray(defaultArgs)));
-
-        assertFalse(parser.outputIntoFile());
-    }
-
-    @Test
-    @DisplayName("Test if the outputIntoFile() is false when the arguments weren't parsed yet")
-    void testOutputIntoFileWithoutParsing() {
-        assertFalse(parser.spoofBrowser());
     }
     
     @Test
