@@ -2,6 +2,9 @@ import crawler.argumentparser.OptionsArgumentParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 
@@ -21,6 +24,56 @@ public class OptionsArgumentParserTest {
         defaultArgs.add("https://website.com");
     }
 
+    @ParameterizedTest
+    @DisplayName("Test if the error message for missing arguments is correct")
+    @ValueSource(strings={"t", "d", "l", "o"})
+    void testErrorMessagesMissingArgumentForOption(String option) {
+        defaultArgs.add("-" + option);
+
+        parser.parseArgs(toArray(defaultArgs));
+
+        assertEquals("Missing argument for option: " + option, parser.getErrorMessage());
+    }
+
+    @ParameterizedTest
+    @DisplayName("Test if parseArgs() returns false when no argument is given")
+    @ValueSource(strings={"t", "d", "l", "o"})
+    void testNoArgumentForOption(String option) {
+        defaultArgs.add("-" + option);
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Test if parseArgs() returns false when the argument is too big")
+    @CsvSource({"t,10000", "d,50"})
+    void testBiggerThanMaxForOption(String option, String arg) {
+        defaultArgs.add("-" + option);
+        defaultArgs.add(arg);
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Test if parseArgs() returns false when the argument is negative")
+    @ValueSource(strings={"t", "d", "l"})
+    void testNegativeArgumentForOption(String option) {
+        defaultArgs.add("-" + option);
+        defaultArgs.add("-10");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Test if parseArgs() returns false when the argument is 0")
+    @ValueSource(strings={"t", "d", "l"})
+    void testZeroForOption(String option) {
+        defaultArgs.add("-" + option);
+        defaultArgs.add("0");
+
+        assertFalse(parser.parseArgs(toArray(defaultArgs)));
+    }
+
     @Test
     @DisplayName("Test if setting a thread count works")
     void testThreadCount() {
@@ -30,51 +83,6 @@ public class OptionsArgumentParserTest {
         assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertEquals(10, parser.getThreadCount());
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when the thread count is set too big")
-    void testThreadCountBiggerThanMax() {
-        defaultArgs.add("-t");
-        defaultArgs.add("10000");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when the thread count is set to a negative number")
-    void testThreadCountNegative() {
-        defaultArgs.add("-t");
-        defaultArgs.add("-10");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when the thread count is set to 0")
-    void testThreadCountZero() {
-        defaultArgs.add("-t");
-        defaultArgs.add("0");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when thread count has no argument")
-    void testThreadCountNoArgument() {
-        defaultArgs.add("-t");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if the error message is correct when thread count has no argument")
-    void testThreadCountNoArgumentErrorMessage() {
-        defaultArgs.add("-t");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-
-        assertEquals("Missing argument for option: t", parser.getErrorMessage());
     }
 
     @Test
@@ -89,51 +97,6 @@ public class OptionsArgumentParserTest {
     }
 
     @Test
-    @DisplayName("Test if parseArgs() returns false when max depth is set too big")
-    void testMaxDepthBiggerThanMax() {
-        defaultArgs.add("-d");
-        defaultArgs.add("50");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when max depth is set to a negative number")
-    void testMaxDepthNegative() {
-        defaultArgs.add("-d");
-        defaultArgs.add("-50");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when max depth is set to 0")
-    void testMaxDepthZero() {
-        defaultArgs.add("-d");
-        defaultArgs.add("0");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when max depth has no argument")
-    void testMaxDepthNoArgument() {
-        defaultArgs.add("-d");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if the error message is correct when max depth has no argument")
-    void testMaxDepthNoArgumentErrorMessage() {
-        defaultArgs.add("-d");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-
-        assertEquals("Missing argument for option: d", parser.getErrorMessage());
-    }
-
-    @Test
     @DisplayName("Test if setting max links works")
     void testMaxLinks() {
         defaultArgs.add("-l");
@@ -142,42 +105,6 @@ public class OptionsArgumentParserTest {
         assertTrue(parser.parseArgs(toArray(defaultArgs)));
 
         assertEquals(5, parser.getMaxLinksPerPage());
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when max links is set to a negative number")
-    void testMaxLinksNegative() {
-        defaultArgs.add("-l");
-        defaultArgs.add("-5");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when max links is set to 0")
-    void testMaxLinksZero() {
-        defaultArgs.add("-l");
-        defaultArgs.add("0");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if parseArgs() returns false when max links has no argument")
-    void testMaxLinksNoArgument() {
-        defaultArgs.add("-l");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if the error message is correct when max links has no argument")
-    void testMaxLinksNoArgumentErrorMessage() {
-        defaultArgs.add("-l");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-
-        assertEquals("Missing argument for option: l", parser.getErrorMessage());
     }
 
     @Test
@@ -322,7 +249,7 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if the omitDuplicates() is false when the arguments weren't parsed yet")
     void testOmitDuplicatesWithoutParsing() {
-        assertFalse(parser.helpRequested());
+        assertFalse(parser.omitDuplicates());
     }
 
     @Test
@@ -392,23 +319,6 @@ public class OptionsArgumentParserTest {
         assertEquals("", parser.getOutputFile());
     }
 
-    @Test
-    @DisplayName("Test if parseArgs() returns false output file doesn't have an argument")
-    void testOutputFileNoArgument() {
-        defaultArgs.add("-o");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-    }
-
-    @Test
-    @DisplayName("Test if the error message is correct when output file has no argument")
-    void testOutputFileNoArgumentErrorMessage() {
-        defaultArgs.add("-o");
-
-        assertFalse(parser.parseArgs(toArray(defaultArgs)));
-
-        assertEquals("Missing argument for option: o", parser.getErrorMessage());
-    }
 
     @Test
     @DisplayName("Test if outputIntoFile() is true when an output is set")
@@ -441,9 +351,6 @@ public class OptionsArgumentParserTest {
         assertEquals("", parser.getErrorMessage());
     }
 
-
-
-
     @Test
     @DisplayName("Test if the help dialog is correct")
     void testHelpDialog() {
@@ -472,10 +379,10 @@ public class OptionsArgumentParserTest {
 
 
     String[] toArray(ArrayList<String> list) {
-        int i=0;
         String[] result = new String[list.size()];
-        for (String string : list)
-            result[i++] = string;
+
+        for (int i=0; i<result.length; i++)
+            result[i] = list.get(i);
 
         return result;
     }
