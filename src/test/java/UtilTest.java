@@ -35,10 +35,10 @@ public class UtilTest {
     @Test
     @DisplayName("Tests invalid Values (<= 0) for readable Byte-Formatting")
     void testInvalidInputsForByteFormatting() {
-        assertEquals(Util.readableFileSize(0l), "0");
+        assertEquals(Util.readableFileSize(0L), "0");
         assertEquals(Util.readableFileSize(0.0), "0");
 
-        assertEquals(Util.readableFileSize(-1l), "0");
+        assertEquals(Util.readableFileSize(-1L), "0");
         assertEquals(Util.readableFileSize(-1.0), "0");
     }
 

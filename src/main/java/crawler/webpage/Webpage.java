@@ -89,7 +89,7 @@ public class Webpage {
      * @see     JSONObject
      */
     public JSONObject asJSONObject() {
-        JSONObject thisAsJSON = getJSONObjectWithOrderedKeys();
+        JSONObject thisAsJSON = Util.makeJSONObjectWithOrderedKeys();
 
         fillJSONObjectWithPageContent(thisAsJSON);
 
@@ -97,31 +97,6 @@ public class Webpage {
             fillJSONObjectWithChildren(thisAsJSON);
 
         return thisAsJSON;
-    }
-
-    /**
-     * Generates a JSONObject with a LinkedHashMap instead of a Hashmap  in order to maintain order of keys. <br>
-     * https://stackoverflow.com/a/62476486
-     *
-     * @return JSONObject with ordered keys
-     */
-    private JSONObject getJSONObjectWithOrderedKeys() {
-        return new JSONObject() {
-            @Override
-            public JSONObject put(String key, Object value) throws JSONException {
-                try {
-                    Field map = JSONObject.class.getDeclaredField("map");
-                    map.setAccessible(true);
-                    Object mapValue = map.get(this);
-                    if (!(mapValue instanceof LinkedHashMap)) {
-                        map.set(this, new LinkedHashMap<>());
-                    }
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                return super.put(key, value);
-            }
-        };
     }
 
     /**
