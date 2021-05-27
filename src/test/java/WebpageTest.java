@@ -253,6 +253,16 @@ public class WebpageTest {
         assertEquals(0, webpage.getChildren().size());
     }
 
+    @Test
+    @DisplayName("Test if a a non http(s):// link is handled correctly")
+    void testNotAHttpURL() throws URISyntaxException {
+        Webpage webpage = new Webpage("not-a-http-url");
+
+        webpage.loadPage();
+
+        assertEquals(0, webpage.getChildren().size());
+    }
+
     /**
      * Removes nanoLoadTime from a webpage and its children
      * @param webpage Webpage to remove thr load times from
