@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
-public class OptionsArgumentParser implements ArgumentParser{
+public class OptionsArgumentParser implements ArgumentParser {
     private static final int
             DEFAULT_DEPTH = 2,
             MAX_DEPTH_ALLOWED = 10,

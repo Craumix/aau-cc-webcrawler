@@ -24,16 +24,11 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        if (!parser.parseArgs(args) && !parser.helpRequested()) {
-            System.out.println(parser.getWarnings());
-            System.err.println(parser.getErrorMessage());
+        if (checkErrorWhileParsing(args))
             System.exit(1);
-        }
 
-        if (parser.helpRequested()) {
-            System.out.println(parser.getHelpDialog());
+        if (checkHelp())
             System.exit(0);
-        }
 
         System.out.println(parser.getWarnings());
 
@@ -45,6 +40,23 @@ public class Main {
         startLoadingPagesAsynchronously();
 
         printPages();
+    }
+
+    private static boolean checkErrorWhileParsing(String[] args) {
+        if (!parser.parseArgs(args) && !parser.helpRequested()) {
+            System.out.println(parser.getWarnings());
+            System.err.println(parser.getErrorMessage());
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkHelp() {
+        if (parser.helpRequested()) {
+            System.out.println(parser.getHelpDialog());
+            return true;
+        }
+        return false;
     }
 
     /**

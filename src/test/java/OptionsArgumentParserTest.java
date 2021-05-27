@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class OptionsArgumentParserTest {
 
     OptionsArgumentParser parser;
-    ArrayList<String> defaultArgs;
+    ArrayList<String> defaultArgs, customArgs;
 
     @BeforeEach
     void setup() {
@@ -23,6 +23,8 @@ public class OptionsArgumentParserTest {
         defaultArgs = new ArrayList<>();
         defaultArgs.add("-u");
         defaultArgs.add("https://website.com");
+
+        customArgs = new ArrayList<>();
     }
 
     @ParameterizedTest
@@ -44,10 +46,13 @@ public class OptionsArgumentParserTest {
 
         assertFalse(parser.parseArgs(toArray(defaultArgs)));
     }
-
     @ParameterizedTest
     @DisplayName("Test if parseArgs() returns false when the argument is too big")
-    @CsvSource({"t,10000", "d,50"})
+    @CsvSource({
+            "t, 10000",
+            "d, 50"
+    })
+
     void testBiggerThanMaxForOption(String option, String arg) {
         defaultArgs.add("-" + option);
         defaultArgs.add(arg);
@@ -77,7 +82,11 @@ public class OptionsArgumentParserTest {
 
     @ParameterizedTest
     @DisplayName("Test if setting a argument for an option works")
-    @CsvSource({"t,10,getThreadCount", "d,5,getMaxDepth", "l,5,getMaxLinksPerPage"})
+    @CsvSource({
+            "t, 10, getThreadCount",
+            "d, 5,  getMaxDepth",
+            "l, 5,  getMaxLinksPerPage"
+    })
     void testSettingArgumentForOption(String option, int arg, String method) throws Exception {
         defaultArgs.add("-" + option);
         defaultArgs.add(String.valueOf(arg));
@@ -92,8 +101,14 @@ public class OptionsArgumentParserTest {
 
     @ParameterizedTest
     @DisplayName("Test if boolean methods have the correct default value")
-    @CsvSource({"helpRequested,false", "spoofBrowser,false", "respectRobotsTxt,true", "omitDuplicates,false", "outputIntoFile,false"})
-    void testDefaultValueBooleanMethods(String method, boolean expectedResult) throws Exception{
+    @CsvSource({
+            "helpRequested,    false",
+            "spoofBrowser,     false",
+            "respectRobotsTxt, true",
+            "omitDuplicates,   false",
+            "outputIntoFile,   false"
+    })
+    void testDefaultValueBooleanMethods(String method, boolean expectedResult) throws Exception {
 
         Method actualMethod = Class.forName(parser.getClass().getName()).getDeclaredMethod(method);
         boolean actualResult = (boolean) actualMethod.invoke(parser);
@@ -103,8 +118,14 @@ public class OptionsArgumentParserTest {
 
     @ParameterizedTest
     @DisplayName("Test if boolean methods have the correct value when not set but parsed")
-    @CsvSource({"helpRequested,false", "spoofBrowser,false", "respectRobotsTxt,true", "omitDuplicates,false", "outputIntoFile,false"})
-    void testDefaultValueAfterParsingBooleanMethods(String method, boolean expectedResult) throws Exception{
+    @CsvSource({
+            "helpRequested,    false",
+            "spoofBrowser,     false",
+            "respectRobotsTxt, true",
+            "omitDuplicates,   false",
+            "outputIntoFile,   false"
+    })
+    void testDefaultValueAfterParsingBooleanMethods(String method, boolean expectedResult) throws Exception {
         parser.parseArgs(toArray(defaultArgs));
 
         Method actualMethod = Class.forName(parser.getClass().getName()).getDeclaredMethod(method);
@@ -115,8 +136,13 @@ public class OptionsArgumentParserTest {
 
     @ParameterizedTest
     @DisplayName("Test if boolean methods have the correct value when their respective flag is set")
-    @CsvSource({"h,helpRequested,true", "b,spoofBrowser,true", "r,respectRobotsTxt,false", "s,omitDuplicates,true"})
-    void testSetBooleanMethods(String option, String method, boolean expectedResult) throws Exception{
+    @CsvSource({
+            "h, helpRequested,    true",
+            "b, spoofBrowser,     true",
+            "r, respectRobotsTxt, false",
+            "s, omitDuplicates,   true"
+    })
+    void testSetBooleanMethods(String option, String method, boolean expectedResult) throws Exception {
         defaultArgs.add("-" + option);
 
         parser.parseArgs(toArray(defaultArgs));
@@ -130,82 +156,74 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if setting a single url works")
     void testSingleUrl() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
-        args.add("https://website.com");
+        customArgs.add("-u");
+        customArgs.add("https://website.com");
 
-        parser.parseArgs(toArray(args));
+        parser.parseArgs(toArray(customArgs));
 
-        args.remove("-u");
+        customArgs.remove("-u");
 
-        assertEquals(args, parser.getRootUrls());
+        assertEquals(customArgs, parser.getRootUrls());
     }
 
     @Test
     @DisplayName("Test if setting multiple urls works")
     void testMultipleUrls() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
-        args.add("https://website.com,https://internet.com");
+        customArgs.add("-u");
+        customArgs.add("https://website.com,https://internet.com");
 
-        parser.parseArgs(toArray(args));
+        parser.parseArgs(toArray(customArgs));
 
-        args = new ArrayList<>();
-        args.add("https://website.com");
-        args.add("https://internet.com");
+        customArgs = new ArrayList<>();
+        customArgs.add("https://website.com");
+        customArgs.add("https://internet.com");
 
-        assertEquals(args, parser.getRootUrls());
+        assertEquals(customArgs, parser.getRootUrls());
     }
 
     @Test
     @DisplayName("Test if the https:// scheme gets added when no scheme is found")
     void testUrlSchemaAdding() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
-        args.add("website.com");
+        customArgs.add("-u");
+        customArgs.add("website.com");
 
-        parser.parseArgs(toArray(args));
+        parser.parseArgs(toArray(customArgs));
 
-        args = new ArrayList<>();
-        args.add("https://website.com");
+        customArgs = new ArrayList<>();
+        customArgs.add("https://website.com");
 
-        assertEquals(args, parser.getRootUrls());
+        assertEquals(customArgs, parser.getRootUrls());
     }
 
     @Test
     @DisplayName("Test if a url gets rejected when is not valid")
     void testUrlRejection() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
-        args.add("https://website");
+        customArgs.add("-u");
+        customArgs.add("https://website");
 
-        assertFalse(parser.parseArgs(toArray(args)));
+        assertFalse(parser.parseArgs(toArray(customArgs)));
     }
 
     @Test
     @DisplayName("Test if parseArgs() returns false when no url is given")
     void testNoUrl() {
-        ArrayList<String> args = new ArrayList<>();
-
-        assertFalse(parser.parseArgs(toArray(args)));
+        assertFalse(parser.parseArgs(toArray(customArgs)));
     }
 
     @Test
     @DisplayName("Test if parseArgs() returns false when urls has no argument")
     void testUrlNoArgument() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
+        customArgs.add("-u");
 
-        assertFalse(parser.parseArgs(toArray(args)));
+        assertFalse(parser.parseArgs(toArray(customArgs)));
     }
 
     @Test
     @DisplayName("Test if the error message is correct when urls has no argument")
     void testUrlNoArgumentErrorMessage() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
+        customArgs.add("-u");
 
-        assertFalse(parser.parseArgs(toArray(args)));
+        assertFalse(parser.parseArgs(toArray(customArgs)));
 
         assertEquals("Missing argument for option: u", parser.getErrorMessage());
     }
@@ -213,11 +231,10 @@ public class OptionsArgumentParserTest {
     @Test
     @DisplayName("Test if the scheme adding warning gets added")
     void testUrlWarning() {
-        ArrayList<String> args = new ArrayList<>();
-        args.add("-u");
-        args.add("website.com");
+        customArgs.add("-u");
+        customArgs.add("website.com");
 
-        parser.parseArgs(toArray(args));
+        parser.parseArgs(toArray(customArgs));
 
         String expectedResult = "No URL scheme given, assuming https://website.com\n";
 
