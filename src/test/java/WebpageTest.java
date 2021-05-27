@@ -254,9 +254,19 @@ public class WebpageTest {
     }
 
     @Test
-    @DisplayName("Test if a a non http(s):// link is handled correctly")
+    @DisplayName("Test if a non http(s):// link is handled correctly")
     void testNotAHttpURL() throws URISyntaxException {
         Webpage webpage = new Webpage("not-a-http-url");
+
+        webpage.loadPage();
+
+        assertEquals(0, webpage.getChildren().size());
+    }
+
+    @Test
+    @DisplayName("Test if a invalid URL is handled correctly")
+    void testInvalidURL() throws URISyntaxException {
+        Webpage webpage = new Webpage("invalid-url");
 
         webpage.loadPage();
 
