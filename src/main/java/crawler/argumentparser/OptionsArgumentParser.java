@@ -8,12 +8,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 public class OptionsArgumentParser implements ArgumentParser {
-    private static final int
-            DEFAULT_DEPTH = 2,
-            MAX_DEPTH_ALLOWED = 10,
-            DEFAULT_THREAD_COUNT = 2,
-            MAX_THREAD_COUNT = 1024,
-            DEFAULT_MAX_LINKS_PER_PAGE = 100;
 
     private final Options cliOptions = initializeCliOptions();
     private CommandLine cmdLine;
