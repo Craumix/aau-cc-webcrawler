@@ -243,6 +243,15 @@ public class WebpageTest {
         assertEquals(expectedResult, removeNanoLoadTimes(webpage));
     }
 
+    @Test
+    @DisplayName("Test if a link to itself is handled correctly")
+    void testLinkSelf() throws URISyntaxException {
+        Webpage webpage = new Webpage("link-to-self");
+
+        webpage.loadPage();
+
+        assertEquals(0, webpage.getChildren().size());
+    }
 
     /**
      * Removes nanoLoadTime from a webpage and its children
