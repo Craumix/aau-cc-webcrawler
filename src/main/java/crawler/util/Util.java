@@ -9,6 +9,8 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 public class Util {
+
+    private Util() {}
     /**
      * Formats a given amount of bytes as a more readable string.
      *
@@ -50,7 +52,7 @@ public class Util {
      * @return      if the URI matches the regex
      */
     public static boolean isValidHttpUrl(String uri) {
-        return uri.matches("https?:\\/\\/?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+        return uri.matches("https?://?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)");
     }
 
     /**
