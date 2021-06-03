@@ -1,4 +1,4 @@
-import connector.LocalFileFetcher;
+import mocks.LocalFileFetcher;
 import crawler.webpage.Webpage;
 import crawler.webpage.filter.WebpageLoadFilter;
 import org.json.JSONArray;
@@ -18,7 +18,7 @@ public class WebpageTest {
 
     @BeforeEach
     void setup() {
-        Webpage.setConnector(new LocalFileFetcher());
+        Webpage.setFetcher(new LocalFileFetcher());
         Webpage.setMaxChildrenPerPage(Integer.MAX_VALUE);
     }
 

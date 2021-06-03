@@ -1,4 +1,4 @@
-import connector.LocalFileFetcher;
+import mocks.LocalFileFetcher;
 import crawler.webpage.AsyncWebpageLoader;
 import crawler.webpage.Webpage;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +18,7 @@ public class PageProcessorTest {
 
     @BeforeAll
     static void setupBefore() {
-        Webpage.setConnector(new LocalFileFetcher());
+        Webpage.setFetcher(new LocalFileFetcher());
     }
 
     @BeforeEach

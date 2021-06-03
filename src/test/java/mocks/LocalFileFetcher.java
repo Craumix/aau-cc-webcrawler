@@ -1,4 +1,4 @@
-package connector;
+package mocks;
 
 import crawler.webpage.fetcher.Fetcher;
 import org.jsoup.Jsoup;
@@ -18,7 +18,7 @@ public class LocalFileFetcher implements Fetcher {
         if (location.endsWith(".error"))
             throw new IOException(location);
 
-        return Jsoup.parse(new File(String.format("src/test/java/connector/test-sites/%s.html",location)), null);
+        return Jsoup.parse(new File(String.format("src/test/java/mocks/test-sites/%s.html",location)), null);
     }
 
 }

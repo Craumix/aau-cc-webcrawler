@@ -261,7 +261,7 @@ public class Webpage {
         maxChildrenPerPage = count;
     }
 
-    public static void setConnector(Fetcher newFetcher) {
+    public static void setFetcher(Fetcher newFetcher) {
         Webpage.fetcher = newFetcher;
     }
 

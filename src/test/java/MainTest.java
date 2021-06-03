@@ -1,6 +1,6 @@
 import com.github.stefanbirkner.systemlambda.SystemLambda;
 import crawler.Main;
-import crawler.argumentparser.ArgumentParser;
+import mocks.DummyParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

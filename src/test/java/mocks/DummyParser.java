@@ -1,3 +1,5 @@
+package mocks;
+
 import crawler.argumentparser.ArgumentParser;
 
 import java.util.ArrayList;
