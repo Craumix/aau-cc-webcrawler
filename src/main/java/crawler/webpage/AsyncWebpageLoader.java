@@ -1,23 +1,28 @@
 package crawler.webpage;
 
-import java.util.ArrayList;
+import java.util.ArrayList;;
+import java.util.Collections;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class AsyncWebpageLoader {
 
-    private final Webpage rootPage;
+    private final ArrayList<Webpage> rootPages;
     private final int remainingDepth;
     private final ThreadPoolExecutor threadPool;
 
+    public AsyncWebpageLoader(Webpage rootPage, int depth, int threadCount) {
+        this(new ArrayList<>(Collections.singletonList(rootPage)), depth, threadCount);
+    }
+
     /**
-     * @param rootPage      the first page to load
+     * @param rootPages      the first page to load
      * @param depth         to which depth to load children of the rootPage
      * @param threadCount   how many threads to use for loading
      */
-    public AsyncWebpageLoader(Webpage rootPage, int depth, int threadCount) {
-        this.rootPage = rootPage;
+    public AsyncWebpageLoader(ArrayList<Webpage> rootPages, int depth, int threadCount) {
+        this.rootPages = rootPages;
         this.remainingDepth = depth - 1;
         this.threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
     }
@@ -29,10 +34,12 @@ public class AsyncWebpageLoader {
      * @throws InterruptedException
      */
     public void loadPagesRecursively() throws InterruptedException {
-        threadPool.execute(() -> {
-            rootPage.loadPage();
-            loadChildren(rootPage.getChildren(), remainingDepth);
-        });
+        for (Webpage rootPage : rootPages) {
+            threadPool.execute(() -> {
+                rootPage.loadPage();
+                loadChildren(rootPage.getChildren(), remainingDepth);
+            });
+        }
 
         while (threadPool.getActiveCount() > 0)
             Thread.sleep(50);
