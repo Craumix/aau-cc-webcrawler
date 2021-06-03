@@ -22,7 +22,7 @@ public class Main {
 
     private static final ArrayList<Webpage> rootPages = new ArrayList<>();
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         if (checkErrorWhileParsing(args))
             System.exit(1);
@@ -76,7 +76,7 @@ public class Main {
      * Loads the root page with the specified filters, user agent and links per page.
      * @throws URISyntaxException If the given string violates RFC 2396
      */
-    private static void initializeRootPage() throws URISyntaxException {
+    private static void initializeRootPage() {
         Webpage.setRequestUserAgent(parser.spoofBrowser() ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
         Webpage.setMaxChildrenPerPage(parser.getMaxLinksPerPage());
 
@@ -86,8 +86,13 @@ public class Main {
         if (parser.respectRobotsTxt())
             loadFilters.add(new RobotsLoadFilter());
 
-        for (String rootUrl : parser.getRootUrls())
-            rootPages.add(new Webpage(rootUrl, loadFilters));
+        try {
+            for (String rootUrl : parser.getRootUrls())
+                rootPages.add(new Webpage(rootUrl, loadFilters));
+        } catch (URISyntaxException e) {
+            // this doesn't happen the URI has been checked
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -122,12 +127,16 @@ public class Main {
 
     /**
      * Starts an {@link AsyncWebpageLoader} for every rootPage
-     * @throws InterruptedException
      */
-    private static void startLoadingPagesAsynchronously() throws InterruptedException {
-        for (Webpage rootPage : rootPages) {
-            AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, parser.getMaxDepth(), parser.getThreadCount());
-            pageProcessor.loadPagesRecursively();
+    private static void startLoadingPagesAsynchronously() {
+        try {
+            for (Webpage rootPage : rootPages) {
+                AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPage, parser.getMaxDepth(), parser.getThreadCount());
+                pageProcessor.loadPagesRecursively();
+            }
+        } catch (InterruptedException e) {
+            // this doesn't happen since we don't interact with the threads
+            e.printStackTrace();
         }
     }
 

@@ -47,7 +47,7 @@ public class Webpage {
      * @throws URISyntaxException
      */
     public Webpage(String pageURI) throws URISyntaxException {
-        this(new URI(pageURI), new ArrayList<>());
+        this(new URI(pageURI));
     }
 
     /**
