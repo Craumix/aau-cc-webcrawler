@@ -22,6 +22,8 @@ public class Main {
 
     private static final ArrayList<Webpage> rootPages = new ArrayList<>();
 
+    private Main() {}
+
     public static void main(String[] args) {
 
         if (checkErrorWhileParsing(args))
