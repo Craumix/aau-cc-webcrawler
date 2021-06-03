@@ -12,13 +12,18 @@ public class AsyncWebpageLoader {
     private final int remainingDepth;
     private final ThreadPoolExecutor threadPool;
 
+    /**
+     * @param rootPage      the first page to load
+     * @param depth         to which depth to load children of the rootPages
+     * @param threadCount   how many threads to use for loading
+     */
     public AsyncWebpageLoader(Webpage rootPage, int depth, int threadCount) {
         this(new ArrayList<>(Collections.singletonList(rootPage)), depth, threadCount);
     }
 
     /**
-     * @param rootPages      the first page to load
-     * @param depth         to which depth to load children of the rootPage
+     * @param rootPages     the first pages to load
+     * @param depth         to which depth to load children of the rootPages
      * @param threadCount   how many threads to use for loading
      */
     public AsyncWebpageLoader(ArrayList<Webpage> rootPages, int depth, int threadCount) {
@@ -28,12 +33,15 @@ public class AsyncWebpageLoader {
     }
 
     /**
-     * Starts loading the pages recursively with the parameters specified int the constructor.
+     * Starts loading the pages recursively with the parameters specified int the constructor. <br>
      * This method blocks until the recursive loading process is finished.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException when interrupted
      */
     public void loadPagesRecursively() throws InterruptedException {
+        if (remainingDepth < 0)
+            return;
+
         for (Webpage rootPage : rootPages) {
             threadPool.execute(() -> {
                 rootPage.loadPage();
@@ -55,13 +63,14 @@ public class AsyncWebpageLoader {
      * @param remainingDepth    the remaining depth for loading, will only load if > 0
      */
     private void loadChildren(ArrayList<Webpage> pages, int remainingDepth) {
-        if (remainingDepth > 0) {
-            for (Webpage page : pages) {
-                threadPool.execute(() -> {
-                    page.loadPage();
-                    loadChildren(page.getChildren(), remainingDepth - 1);
-                });
-            }
+        if (remainingDepth < 1)
+            return;
+
+        for (Webpage page : pages) {
+            threadPool.execute(() -> {
+                page.loadPage();
+                loadChildren(page.getChildren(), remainingDepth - 1);
+            });
         }
     }
 }
