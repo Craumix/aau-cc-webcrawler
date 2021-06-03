@@ -31,7 +31,7 @@ public class PageProcessorTest {
     @ValueSource(ints = {1, 50, 100})
     void testLoadingRootPage(int threadCount) throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 1, threadCount);
-        webpageProcessor.loadPagesRecursively();
+        webpageProcessor.loadPagesAndBlock();
 
         assertNotNull(rootPage.getPageTitle());
     }
@@ -41,7 +41,7 @@ public class PageProcessorTest {
     @ValueSource(ints = {1, 50, 100})
     void testLoadingChildren(int threadCount) throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 10, threadCount);
-        webpageProcessor.loadPagesRecursively();
+        webpageProcessor.loadPagesAndBlock();
 
         for (int index=0; index<3; index++)
             assertNotNull(rootPage.getChildren().get(index).getPageTitle());
@@ -55,7 +55,7 @@ public class PageProcessorTest {
 
         for (int depth : depthsToTest) {
             AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, depth, threadCount);
-            webpageProcessor.loadPagesRecursively();
+            webpageProcessor.loadPagesAndBlock();
 
             // get 4-links.html
             Webpage childPage = rootPage.getChildren().get(2);
@@ -70,7 +70,7 @@ public class PageProcessorTest {
     @DisplayName("Test if the root page doesn't get loaded with a depth of zero")
     void testRootPageNotLoading() throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 0, 1);
-        webpageProcessor.loadPagesRecursively();
+        webpageProcessor.loadPagesAndBlock();
 
         assertNull(rootPage.getPageTitle());
     }
