@@ -6,19 +6,16 @@ import crawler.webpage.fetcher.JsoupFetcher;
 import crawler.webpage.filter.WebpageLoadFilter;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 public class Webpage {
     private static String userAgent = "Java/" + System.getProperty("java.version");
@@ -37,8 +34,8 @@ public class Webpage {
 
     private Exception error;
 
-    private ArrayList<Webpage> children = new ArrayList<>();
-    private ArrayList<WebpageLoadFilter> loadFilters ;
+    private final ArrayList<Webpage> children = new ArrayList<>();
+    private final ArrayList<WebpageLoadFilter> loadFilters ;
 
     /**
      * String will be parsed to URI throws an exception if string is not a valid URI
