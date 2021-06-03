@@ -4,6 +4,8 @@ import crawler.argumentparser.ArgumentParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,31 +63,28 @@ public class MainTest {
     }
 
     @Test
-    @DisplayName("Test that filename recommendations")
-    void testOutputFileRecommendations() throws Exception {
+    @DisplayName("Test filename which needs no recommendation")
+    void testFilenameNoRecommendation() throws Exception {
         parser.setOutputFile("file.json");
         String out = SystemLambda.tapSystemOut(() -> {
             Main.printWarningIfFileIsntJSON();
         });
         assertEquals("", out);
+    }
 
-        parser.setOutputFile("file");
-        out = SystemLambda.tapSystemOut(() -> {
+    @ParameterizedTest
+    @DisplayName("Test that filename recommendations")
+    @CsvSource({
+            "file, file.json",
+            "file.txt, file.json",
+            "file.txt.txt, file.txt.json"
+    })
+    void testOutputFileRecommendations(String original,  String recommendation) throws Exception {
+        parser.setOutputFile(original);
+        String out = SystemLambda.tapSystemOut(() -> {
             Main.printWarningIfFileIsntJSON();
         });
-        assertEquals("The output format is JSON consider using file.json as a filename", out);
-
-        parser.setOutputFile("file.txt");
-        out = SystemLambda.tapSystemOut(() -> {
-            Main.printWarningIfFileIsntJSON();
-        });
-        assertEquals("The output format is JSON consider using file.json as a filename", out);
-
-        parser.setOutputFile("file.txt.txt");
-        out = SystemLambda.tapSystemOut(() -> {
-            Main.printWarningIfFileIsntJSON();
-        });
-        assertEquals("The output format is JSON consider using file.txt.json as a filename", out);
+        assertEquals("The output format is JSON consider using " + recommendation + " as a filename", out);
     }
 
     @Test
