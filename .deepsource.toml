@@ -8,5 +8,5 @@ enabled = true
   runtime_version = "14"
 
   test_patterns = [
-    "src/test/**"
+    "*/src/test/**"
   ]
