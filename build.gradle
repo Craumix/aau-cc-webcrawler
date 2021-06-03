@@ -23,6 +23,8 @@ jacoco {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.6.0'
+    // https://mvnrepository.com/artifact/com.github.stefanbirkner/system-lambda
+    testImplementation group: 'com.github.stefanbirkner', name: 'system-lambda', version: '1.1.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
     implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
