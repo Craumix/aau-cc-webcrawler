@@ -1,5 +1,6 @@
 package crawler;
 
+import crawler.argumentparser.ArgumentParser;
 import crawler.argumentparser.OptionsArgumentParser;
 import crawler.webpage.filter.DuplicateLoadFilter;
 import crawler.webpage.filter.RobotsLoadFilter;
@@ -14,13 +15,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class Main {
-    private static final String
+    public static final String
             DEFAULT_USER_AGENT = "AAU CleanCode WebCrawler (https://github.com/Craumix/aau-cc-webcrawler)",
             BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36";
 
-    private static final OptionsArgumentParser parser = new OptionsArgumentParser();
+    public static ArgumentParser parser = new OptionsArgumentParser();
 
-    private static final ArrayList<Webpage> rootPages = new ArrayList<>();
+    public static final ArrayList<Webpage> rootPages = new ArrayList<>();
 
     private Main() {}
 
@@ -44,7 +45,7 @@ public class Main {
         printPages();
     }
 
-    private static boolean checkErrorWhileParsing(String[] args) {
+    public static boolean checkErrorWhileParsing(String[] args) {
         if (!parser.parseArgs(args) && !parser.helpRequested()) {
             System.out.println(parser.getWarnings());
             System.err.println(parser.getErrorMessage());
@@ -53,7 +54,7 @@ public class Main {
         return false;
     }
 
-    private static boolean checkHelp() {
+    public static boolean checkHelp() {
         if (parser.helpRequested()) {
             System.out.println(parser.getHelpDialog());
             return true;
@@ -64,7 +65,7 @@ public class Main {
     /**
      * Prints a warning if the specified output file isn't a .json file.
      */
-    private static void printWarningIfFileIsntJSON() {
+    public static void printWarningIfFileIsntJSON() {
         if (!parser.getOutputFile().endsWith(".json")) {
             String filename = parser.getOutputFile();
             if (filename.contains("."))
@@ -78,7 +79,7 @@ public class Main {
      * Loads the root page with the specified filters, user agent and links per page.
      * @throws URISyntaxException If the given string violates RFC 2396
      */
-    private static void initializeRootPage() {
+    public static void initializeRootPage() {
         Webpage.setRequestUserAgent(parser.spoofBrowser() ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
         Webpage.setMaxChildrenPerPage(parser.getMaxLinksPerPage());
 
@@ -101,7 +102,7 @@ public class Main {
      * Prints the root page and its children either into a file if one is specified
      * or into System.out.
      */
-    private static void printPages() {
+    public static void printPages() {
 
         String rootPagesAsJSONString = getRootPagesAsJsonString();
 
@@ -130,7 +131,7 @@ public class Main {
     /**
      * Starts an {@link AsyncWebpageLoader} for every rootPage
      */
-    private static void startLoadingPagesAsynchronously() {
+    public static void startLoadingPagesAsynchronously() {
         try {
             AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPages, parser.getMaxDepth(), parser.getThreadCount());
             pageProcessor.loadPagesRecursively();
@@ -144,7 +145,7 @@ public class Main {
      * Generates a JSON with all of the JSON representations of the rootPages in the field urls
      * @return A String of the generated JSONObject
      */
-    private static String getRootPagesAsJsonString() {
+    public static String getRootPagesAsJsonString() {
         JSONArray rootPagesJSONArray = new JSONArray();
         for (Webpage rootPage : rootPages) {
             rootPagesJSONArray.put(rootPage.asJSONObject());
