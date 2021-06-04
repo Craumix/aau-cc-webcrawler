@@ -296,4 +296,10 @@ public class Webpage {
     public static int getMaxChildrenPerPage() {
         return maxChildrenPerPage;
     }
+
+    public ArrayList<WebpageLoadFilter> getLoadFilters() {
+        return loadFilters;
+    }
+
+
 }

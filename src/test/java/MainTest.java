@@ -1,5 +1,8 @@
 import com.github.stefanbirkner.systemlambda.SystemLambda;
 import crawler.Main;
+import crawler.webpage.Webpage;
+import crawler.webpage.filter.DuplicateLoadFilter;
+import crawler.webpage.filter.RobotsLoadFilter;
 import mocks.DummyParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,41 +10,41 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 
     private DummyParser parser;
+    private ArrayList<String> urls;
 
     @BeforeEach
     void setDummyParser() {
+        urls = new ArrayList<>();
+        urls.add("https://55-words");
+
         parser = new DummyParser();
         Main.parser = parser;
+        Main.rootPages = new ArrayList<>();
     }
 
-    @Test
-    @DisplayName("Test main exit code without params")
-    void testNoParamsExitCode() throws Exception {
-        parser.setParseSuccess(false);
+    @ParameterizedTest
+    @DisplayName("Test if the eXit codes are right for any combination of parse failure and help requested")
+    @CsvSource({
+            "false, false, 1",
+            "false, true,  0",
+            "true,  true,  0"
+    })
+    void testExitCode(boolean parseSuccess, boolean helpRequested, int expectedExitCode) throws Exception {
+        parser.setParseSuccess(parseSuccess);
+        parser.setHelpRequested(helpRequested);
 
         int code = SystemLambda.catchSystemExit(() -> {
             Main.main(new String[0]);
         });
 
-        assertEquals(1, code);
-    }
-
-    @Test
-    @DisplayName("Test main exit code for help")
-    void testHelpExitCode() throws Exception {
-        parser.setParseSuccess(true);
-        parser.setHelpRequested(true);
-
-        int code = SystemLambda.catchSystemExit(() -> {
-            Main.main(new String[0]);
-        });
-
-        assertEquals(0, code);
+        assertEquals(expectedExitCode, code);
     }
 
     @Test
@@ -54,12 +57,6 @@ public class MainTest {
             Main.checkHelp();
         });
         assertEquals("AHelpDialog\n", out);
-
-        parser.setHelpRequested(false);
-        out = SystemLambda.tapSystemOut(() -> {
-            Main.checkHelp();
-        });
-        assertEquals("", out);
     }
 
     @Test
@@ -90,6 +87,61 @@ public class MainTest {
     @Test
     @DisplayName("Test root pages init")
     void testRootPageInit() {
+        parser.setParseSuccess(true);
+        parser.setRootUrls(urls);
+
+        Main.initializeRootPage();
+
+        assertNotEquals(0, Main.rootPages.size());
+    }
+
+    @Test
+    @DisplayName("Test if the robots gets set correctly")
+    void testRobotsFilter() {
+        parser.setParseSuccess(true);
+        parser.setRespectRobotsTxt(true);
+        parser.setRootUrls(urls);
+
+        Main.initializeRootPage();
+        Webpage page = Main.rootPages.get(0);
+
+        assertEquals(RobotsLoadFilter.class, page.getLoadFilters().get(0).getClass());
+    }
+
+    @Test
+    @DisplayName("Test if the duplicate gets set correctly")
+    void testDuplicateFilter() {
+        parser.setParseSuccess(true);
+        parser.setOmitDuplicates(true);
+        parser.setRootUrls(urls);
+
+        Main.initializeRootPage();
+        Webpage page = Main.rootPages.get(0);
+
+        assertEquals(DuplicateLoadFilter.class, page.getLoadFilters().get(0).getClass());
+    }
+
+    @Test
+    @DisplayName("Test if the no filter gets set correctly")
+    void testNoFilter() {
+        parser.setParseSuccess(true);
+        parser.setRootUrls(urls);
+
+        Main.initializeRootPage();
+        Webpage page = Main.rootPages.get(0);
+
+        assertEquals(0, page.getLoadFilters().size());
+    }
+
+    @Test
+    @DisplayName("Test if the spoofed browser agent gets set correctly")
+    void testSpoofBrowser() {
+        parser.setParseSuccess(true);
         parser.setSpoofBrowser(true);
+        parser.setRootUrls(urls);
+
+        Main.initializeRootPage();
+
+        assertEquals(Main.BROWSER_USER_AGENT, Webpage.getUserAgent());
     }
 }

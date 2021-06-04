@@ -21,7 +21,7 @@ public class Main {
 
     public static ArgumentParser parser = new OptionsArgumentParser();
 
-    public static final ArrayList<Webpage> rootPages = new ArrayList<>();
+    public static ArrayList<Webpage> rootPages = new ArrayList<>();
 
     private Main() {}
 
@@ -134,7 +134,7 @@ public class Main {
     public static void startLoadingPagesAsynchronously() {
         try {
             AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPages, parser.getMaxDepth(), parser.getThreadCount());
-            pageProcessor.loadPagesRecursively();
+            pageProcessor.loadPagesAndBlock();
         } catch (InterruptedException e) {
             // this doesn't happen since we don't interact with the threads
             e.printStackTrace();
