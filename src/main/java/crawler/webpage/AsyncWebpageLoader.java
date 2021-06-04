@@ -2,12 +2,14 @@ package crawler.webpage;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncWebpageLoader {
 
     private final ArrayList<Webpage> rootPages;
-    private final int depth;
+    private final int remainingDepth;
     private final ThreadPoolExecutor threadPool;
 
     /**
@@ -26,7 +28,7 @@ public class AsyncWebpageLoader {
      */
     public AsyncWebpageLoader(ArrayList<Webpage> rootPages, int depth, int threadCount) {
         this.rootPages = rootPages;
-        this.depth = depth;
+        this.remainingDepth = depth - 1;
         this.threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
     }
 
@@ -36,8 +38,16 @@ public class AsyncWebpageLoader {
      *
      * @throws InterruptedException when interrupted
      */
-    public void loadPagesAndBlock() throws InterruptedException {
-        loadPagesRecursively(rootPages, depth);
+    public void loadPagesRecursively() throws InterruptedException {
+        if (remainingDepth < 0)
+            return;
+
+        for (Webpage rootPage : rootPages) {
+            threadPool.execute(() -> {
+                rootPage.loadPage();
+                loadChildren(rootPage.getChildren(), remainingDepth);
+            });
+        }
 
         while (threadPool.getActiveCount() > 0)
             Thread.sleep(50);
@@ -52,14 +62,14 @@ public class AsyncWebpageLoader {
      * @param pages             list of pages to load
      * @param remainingDepth    the remaining depth for loading, will only load if > 0
      */
-    private void loadPagesRecursively(ArrayList<Webpage> pages, int remainingDepth) {
+    private void loadChildren(ArrayList<Webpage> pages, int remainingDepth) {
         if (remainingDepth < 1)
             return;
 
         for (Webpage page : pages) {
             threadPool.execute(() -> {
                 page.loadPage();
-                loadPagesRecursively(page.getChildren(), depth - 1);
+                loadChildren(page.getChildren(), remainingDepth - 1);
             });
         }
     }

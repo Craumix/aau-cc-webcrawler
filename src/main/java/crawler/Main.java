@@ -134,7 +134,7 @@ public class Main {
     public static void startLoadingPagesAsynchronously() {
         try {
             AsyncWebpageLoader pageProcessor = new AsyncWebpageLoader(rootPages, parser.getMaxDepth(), parser.getThreadCount());
-            pageProcessor.loadPagesAndBlock();
+            pageProcessor.loadPagesRecursively();
         } catch (InterruptedException e) {
             // this doesn't happen since we don't interact with the threads
             e.printStackTrace();
