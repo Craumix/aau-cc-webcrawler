@@ -1,58 +1,88 @@
 import crawler.util.Util;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UtilTest {
 
-    @Test
+    @ParameterizedTest
     @DisplayName("Test to make sure the regex detects valid urls")
-    void testValidURLs() {
-        assertTrue(Util.isValidHttpUrl("http://google.com"));
-        assertTrue(Util.isValidHttpUrl("http://www.google.com"));
-
-        assertTrue(Util.isValidHttpUrl("https://google.com"));
-        assertTrue(Util.isValidHttpUrl("https://www.google.com"));
+    @ValueSource(strings = {
+            "http://google.com",
+            "http://www.google.com",
+            "https://google.com",
+            "https://www.google.com"
+    })
+    void testValidURLs(String url) {
+        assertTrue(Util.isValidHttpUrl(url));
     }
 
-    @Test
-    @DisplayName("Test to make sure the regex detects invalid urls")
-    void testInvalidURLs() {
-        //No Scheme
-        assertFalse(Util.isValidHttpUrl("google.com"));
-        assertFalse(Util.isValidHttpUrl("www.google.com"));
-
-        //Invalid Scheme
-        assertFalse(Util.isValidHttpUrl("abc://google.com"));
-        assertFalse(Util.isValidHttpUrl("abc://www.google.com"));
-
-        //Just a hostname
-        assertFalse(Util.isValidHttpUrl("http://hostname"));
-        assertFalse(Util.isValidHttpUrl("http://hostname"));
+    @ParameterizedTest
+    @DisplayName("Test to make sure the regex detects urls missing a scheme")
+    @ValueSource(strings = {
+            "google.com",
+            "www.google.com"
+    })
+    void testInvalidURLsNoScheme(String url) {
+        assertFalse(Util.isValidHttpUrl(url));
     }
 
-    @Test
-    @DisplayName("Tests invalid Values (<= 0) for readable Byte-Formatting")
-    void testInvalidInputsForByteFormatting() {
-        assertEquals(Util.readableFileSize(0L), "0");
-        assertEquals(Util.readableFileSize(0.0), "0");
-
-        assertEquals(Util.readableFileSize(-1L), "0");
-        assertEquals(Util.readableFileSize(-1.0), "0");
+    @ParameterizedTest
+    @DisplayName("Test to make sure the regex detects urls with an invalid scheme")
+    @ValueSource(strings = {
+            "abc://google.com",
+            "abc://www.google.com"
+    })
+    void testInvalidURLsInvalidSchemes(String url) {
+        assertFalse(Util.isValidHttpUrl(url));
     }
 
-    @Test
-    @DisplayName("Tests valid values for readable Byte-Formatting")
-    void testValidInputsForByteFormatting() {
-        assertEquals(Util.readableFileSize(8L), "8 B");
-        assertEquals(Util.readableFileSize(8.0), "8 B");
+    @ParameterizedTest
+    @DisplayName("Test to make sure the regex detects urls with just a hostname")
+    @ValueSource(strings = {
+            "http://hostname",
+            "https://hostname"
+    })
+    void testInvalidURLs(String url) {
+        assertFalse(Util.isValidHttpUrl(url));
+    }
 
-        assertEquals(Util.readableFileSize(2048L), "2 kB");
-        assertEquals(Util.readableFileSize(2048.0), "2 kB");
+    @ParameterizedTest
+    @DisplayName("Tests invalid double Values (<= 0) for readable Byte-Formatting")
+    @ValueSource(doubles = {0.0, -1.0})
+    void testInvalidDoubleInputsForByteFormatting(double input) {
+        assertEquals("0", Util.readableFileSize(input));
+    }
 
-        assertEquals(Util.readableFileSize(1024L * 1024L * 50L), "50 MB");
+    @ParameterizedTest
+    @DisplayName("Tests invalid long Values (<= 0) for readable Byte-Formatting")
+    @ValueSource(longs = {0L, -1L})
+    void testInvalidLongInputsForByteFormatting(long input) {
+        assertEquals("0", Util.readableFileSize(input));
+    }
 
-        assertEquals(Util.readableFileSize(1024.0 * 1024.0 * 4.5), "4.5 MB");
+    @ParameterizedTest
+    @DisplayName("Tests valid long values for readable Byte-Formatting")
+    @CsvSource({
+            "8,        8 B",
+            "2048,     2 kB",
+            "52428800, 50 MB"
+    })
+    void testValidLongInputsForByteFormatting(long input, String expected) {
+        assertEquals(expected, Util.readableFileSize(input));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Tests valid double values for readable Byte-Formatting")
+    @CsvSource({
+            "8,        8 B",
+            "2048,     2 kB",
+            "52428800, 50 MB"
+    })
+    void testValidDoubleInputsForByteFormatting(double input, String expected) {
+        assertEquals(expected, Util.readableFileSize(input));
     }
 }
