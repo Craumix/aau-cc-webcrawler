@@ -1,7 +1,6 @@
 import mocks.LocalFileFetcher;
 import crawler.webpage.AsyncWebpageLoader;
 import crawler.webpage.Webpage;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,14 +15,10 @@ public class PageProcessorTest {
 
     Webpage rootPage;
 
-    @BeforeAll
-    static void setupBefore() {
-        Webpage.setFetcher(new LocalFileFetcher());
-    }
-
     @BeforeEach
     void setupBeforeEach() throws URISyntaxException {
         rootPage = new Webpage("3-children");
+        rootPage.setFetcher(new LocalFileFetcher());
     }
 
     @ParameterizedTest
@@ -53,8 +48,6 @@ public class PageProcessorTest {
     void testDepth(int threadCount) throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 2, threadCount);
         webpageProcessor.loadPagesRecursivelyAndBlock();
-
-        System.out.println(Webpage.getMaxChildrenPerPage());
 
         // get 4-links.html
         Webpage childPage = rootPage.getChildren().get(2).getChildren().get(0);

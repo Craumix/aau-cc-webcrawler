@@ -16,16 +16,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WebpageTest {
 
+    Webpage defaultPage;
+
     @BeforeEach
-    void setup() {
-        Webpage.setFetcher(new LocalFileFetcher());
-        Webpage.setMaxChildrenPerPage(Integer.MAX_VALUE);
+    void setup() throws URISyntaxException {
+        defaultPage = new Webpage("default");
     }
 
     @Test
     @DisplayName("Test whether the generation of the page-hash works correctly")
     void testPageHashString() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -37,9 +39,9 @@ public class WebpageTest {
     void testMaxChildrenPerPage() {
         int expectedResult = 58;
 
-        Webpage.setMaxChildrenPerPage(expectedResult);
+        defaultPage.setMaxChildrenPerPage(expectedResult);
 
-        assertEquals(expectedResult, Webpage.getMaxChildrenPerPage());
+        assertEquals(expectedResult, defaultPage.getMaxChildrenPerPage());
     }
 
     @Test
@@ -47,15 +49,16 @@ public class WebpageTest {
     void testUserAgent() {
         String expectedResult = "abc";
 
-        Webpage.setRequestUserAgent(expectedResult);
+        defaultPage.setRequestUserAgent(expectedResult);
 
-        assertEquals(expectedResult, Webpage.getUserAgent());
+        assertEquals(expectedResult, defaultPage.getUserAgent());
     }
 
     @Test
     @DisplayName("Test if image links in a page get loaded correctly")
     void testImages() throws URISyntaxException {
         Webpage webpage = new Webpage("4-images");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -73,6 +76,7 @@ public class WebpageTest {
     @DisplayName("Test if links in a page get loaded correctly")
     void testLinks() throws URISyntaxException {
         Webpage webpage = new Webpage("4-links");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -90,6 +94,7 @@ public class WebpageTest {
     @DisplayName("Test if the page size gets calculated correctly")
     void testPageSize() throws URISyntaxException {
         Webpage webpage = new Webpage("big-pagesize");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -100,6 +105,7 @@ public class WebpageTest {
     @DisplayName("Test if the page title gets set correctly")
     void testPageTitle() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -110,6 +116,7 @@ public class WebpageTest {
     @DisplayName("Test an empty page title gets set correctly")
     void testPageTitleEmpty() throws URISyntaxException {
         Webpage webpage = new Webpage("no-pagetitle");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -120,6 +127,7 @@ public class WebpageTest {
     @DisplayName("Test if a missing page title gets set correctly")
     void testPageTitleMissing() throws URISyntaxException {
         Webpage webpage = new Webpage("pagetitle-missing");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -130,6 +138,7 @@ public class WebpageTest {
     @DisplayName("Test if it counts words correctly")
     void testWordCount() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -140,6 +149,7 @@ public class WebpageTest {
     @DisplayName("Test if it counts words correctly with hyphens involved")
     void testWordCountWordWithHyphen() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words-hyphen");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -150,6 +160,7 @@ public class WebpageTest {
     @DisplayName("Test if it counts words correctly with numbers involved")
     void testWordCountNumber() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words-numbers");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -160,6 +171,7 @@ public class WebpageTest {
     @DisplayName("Test if it counts words correctly with symbols involved")
     void testWordCountSymbols() throws URISyntaxException {
         Webpage webpage = new Webpage("10-symbols");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -170,8 +182,9 @@ public class WebpageTest {
     @DisplayName("Test if children stop being added when the limit is hit")
     void testMaxLinksPerPage() throws URISyntaxException {
         Webpage webpage = new Webpage("4-links");
+        webpage.setFetcher(new LocalFileFetcher());
 
-        Webpage.setMaxChildrenPerPage(2);
+        webpage.setMaxChildrenPerPage(2);
         webpage.loadPage();
 
         assertEquals(2, webpage.getChildren().size());
@@ -181,6 +194,7 @@ public class WebpageTest {
     @DisplayName("Test if the JSONObject derived from a Webpage without links is as expected (excluding nanoLoadTime)")
     void testJSONtoStringWithoutChildren() throws URISyntaxException {
         Webpage webpage = new Webpage("55-words");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -193,6 +207,7 @@ public class WebpageTest {
     @DisplayName("Test if the JSONObject derived from a Webpage is as expected (excluding nanoLoadTime)")
     void testJSONtoString() throws URISyntaxException {
         Webpage webpage = new Webpage("3-children");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
         for (Webpage child : webpage.getChildren())
@@ -207,6 +222,7 @@ public class WebpageTest {
     @DisplayName("Test if the JSONObject correctly errors out when the website doesn't exist")
     void testJSONtoStringError() throws URISyntaxException {
         Webpage webpage = new Webpage("https://a.error");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -233,6 +249,7 @@ public class WebpageTest {
         dummyFilterList.add(new DummyFilter());
 
         Webpage webpage = new Webpage("3-children", dummyFilterList);
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
         for (Webpage child : webpage.getChildren())
@@ -247,6 +264,7 @@ public class WebpageTest {
     @DisplayName("Test if a link to itself is handled correctly")
     void testLinkSelf() throws URISyntaxException {
         Webpage webpage = new Webpage("link-to-self");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -257,6 +275,7 @@ public class WebpageTest {
     @DisplayName("Test if a non http(s):// link is handled correctly")
     void testNotAHttpURL() throws URISyntaxException {
         Webpage webpage = new Webpage("not-a-http-url");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 
@@ -267,6 +286,7 @@ public class WebpageTest {
     @DisplayName("Test if a invalid URL is handled correctly")
     void testInvalidURL() throws URISyntaxException {
         Webpage webpage = new Webpage("invalid-url");
+        webpage.setFetcher(new LocalFileFetcher());
 
         webpage.loadPage();
 

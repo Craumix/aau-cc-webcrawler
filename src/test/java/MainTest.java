@@ -90,7 +90,7 @@ public class MainTest {
         parser.setParseSuccess(true);
         parser.setRootUrls(urls);
 
-        Main.initializeRootPage();
+        Main.initializeRootPages();
 
         assertNotEquals(0, Main.rootPages.size());
     }
@@ -102,7 +102,7 @@ public class MainTest {
         parser.setRespectRobotsTxt(true);
         parser.setRootUrls(urls);
 
-        Main.initializeRootPage();
+        Main.initializeRootPages();
         Webpage page = Main.rootPages.get(0);
 
         assertEquals(RobotsLoadFilter.class, page.getLoadFilters().get(0).getClass());
@@ -115,7 +115,7 @@ public class MainTest {
         parser.setOmitDuplicates(true);
         parser.setRootUrls(urls);
 
-        Main.initializeRootPage();
+        Main.initializeRootPages();
         Webpage page = Main.rootPages.get(0);
 
         assertEquals(DuplicateLoadFilter.class, page.getLoadFilters().get(0).getClass());
@@ -127,7 +127,7 @@ public class MainTest {
         parser.setParseSuccess(true);
         parser.setRootUrls(urls);
 
-        Main.initializeRootPage();
+        Main.initializeRootPages();
         Webpage page = Main.rootPages.get(0);
 
         assertEquals(0, page.getLoadFilters().size());
@@ -140,8 +140,8 @@ public class MainTest {
         parser.setSpoofBrowser(true);
         parser.setRootUrls(urls);
 
-        Main.initializeRootPage();
+        Main.initializeRootPages();
 
-        assertEquals(Main.BROWSER_USER_AGENT, Webpage.getUserAgent());
+        assertEquals(Main.BROWSER_USER_AGENT, Main.rootPages.get(0).getUserAgent());
     }
 }

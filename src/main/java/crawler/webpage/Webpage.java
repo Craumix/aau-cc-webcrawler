@@ -18,10 +18,10 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 
 public class Webpage {
-    private static String userAgent = "Java/" + System.getProperty("java.version");
-    private static int maxChildrenPerPage = Integer.MAX_VALUE;
+    private String userAgent = "Java/" + System.getProperty("java.version");
+    private int maxChildrenPerPage = Integer.MAX_VALUE;
 
-    private static Fetcher fetcher = new JsoupFetcher();
+    private Fetcher fetcher = new JsoupFetcher();
 
     private final URI pageURI;
 
@@ -204,6 +204,9 @@ public class Webpage {
                 continue;
 
             Webpage child = new Webpage(resolvedChildURI, loadFilters);
+            child.setRequestUserAgent(this.userAgent);
+            child.setMaxChildrenPerPage(this.maxChildrenPerPage);
+            child.setFetcher(this.fetcher);
             children.add(child);
 
             if (children.size() >= maxChildrenPerPage)
@@ -248,8 +251,8 @@ public class Webpage {
      *
      * @param agent String to send in the UserAgent header
      */
-    public static void setRequestUserAgent(String agent) {
-        Webpage.userAgent = agent;
+    public void setRequestUserAgent(String agent) {
+        userAgent = agent;
     }
 
     /**
@@ -257,12 +260,12 @@ public class Webpage {
      *
      * @param count max amount of children
      */
-    public static void setMaxChildrenPerPage(int count) {
+    public void setMaxChildrenPerPage(int count) {
         maxChildrenPerPage = count;
     }
 
-    public static void setFetcher(Fetcher newFetcher) {
-        Webpage.fetcher = newFetcher;
+    public void setFetcher(Fetcher newFetcher) {
+        fetcher = newFetcher;
     }
 
     public ArrayList<Webpage> getChildren() {
@@ -289,11 +292,11 @@ public class Webpage {
         return images;
     }
 
-    public static String getUserAgent() {
-        return Webpage.userAgent;
+    public String getUserAgent() {
+        return userAgent;
     }
 
-    public static int getMaxChildrenPerPage() {
+    public int getMaxChildrenPerPage() {
         return maxChildrenPerPage;
     }
 

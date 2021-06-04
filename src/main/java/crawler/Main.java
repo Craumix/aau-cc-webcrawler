@@ -38,7 +38,7 @@ public class Main {
         if (parser.outputIntoFile())
             printWarningIfFileIsntJSON();
 
-        initializeRootPage();
+        initializeRootPages();
 
         startLoadingPagesAsynchronously();
 
@@ -79,10 +79,7 @@ public class Main {
      * Loads the root page with the specified filters, user agent and links per page.
      * @throws URISyntaxException If the given string violates RFC 2396
      */
-    public static void initializeRootPage() {
-        Webpage.setRequestUserAgent(parser.spoofBrowser() ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
-        Webpage.setMaxChildrenPerPage(parser.getMaxLinksPerPage());
-
+    public static void initializeRootPages() {
         ArrayList<WebpageLoadFilter> loadFilters = new ArrayList<>();
         if (parser.omitDuplicates())
             loadFilters.add(new DuplicateLoadFilter());
@@ -90,8 +87,12 @@ public class Main {
             loadFilters.add(new RobotsLoadFilter());
 
         try {
-            for (String rootUrl : parser.getRootUrls())
-                rootPages.add(new Webpage(rootUrl, loadFilters));
+            for (String rootUrl : parser.getRootUrls()) {
+                Webpage rootPage = new Webpage(rootUrl, loadFilters);
+                rootPage.setRequestUserAgent(parser.spoofBrowser() ? BROWSER_USER_AGENT : DEFAULT_USER_AGENT);
+                rootPage.setMaxChildrenPerPage(parser.getMaxLinksPerPage());
+                rootPages.add(rootPage);
+            }
         } catch (URISyntaxException e) {
             // this doesn't happen the URI has been checked
             e.printStackTrace();
