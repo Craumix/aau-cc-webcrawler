@@ -31,7 +31,7 @@ public class PageProcessorTest {
     @ValueSource(ints = {1, 50, 100})
     void testLoadingRootPage(int threadCount) throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 1, threadCount);
-        webpageProcessor.loadPagesRecursively();
+        webpageProcessor.loadPagesRecursivelyAndBlock();
 
         assertNotNull(rootPage.getPageTitle());
     }
@@ -41,7 +41,7 @@ public class PageProcessorTest {
     @ValueSource(ints = {1, 50, 100})
     void testLoadingChildren(int threadCount) throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 10, threadCount);
-        webpageProcessor.loadPagesRecursively();
+        webpageProcessor.loadPagesRecursivelyAndBlock();
 
         for (int index=0; index<3; index++)
             assertNotNull(rootPage.getChildren().get(index).getPageTitle());
@@ -51,26 +51,22 @@ public class PageProcessorTest {
     @DisplayName("Test if pages stop being loaded when the depth is reached")
     @ValueSource(ints = {1, 50, 100})
     void testDepth(int threadCount) throws InterruptedException {
-        int[] depthsToTest = {1, 2};
+        AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 2, threadCount);
+        webpageProcessor.loadPagesRecursivelyAndBlock();
 
-        for (int depth : depthsToTest) {
-            AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, depth, threadCount);
-            webpageProcessor.loadPagesRecursively();
+        System.out.println(Webpage.getMaxChildrenPerPage());
 
-            // get 4-links.html
-            Webpage childPage = rootPage.getChildren().get(2);
-            for (int j=1; j < depth; j++)
-                childPage = childPage.getChildren().get(0);
+        // get 4-links.html
+        Webpage childPage = rootPage.getChildren().get(2).getChildren().get(0);
 
-            assertNull(childPage.getPageTitle());
-        }
+        assertNull(childPage.getPageTitle());
     }
 
     @Test
     @DisplayName("Test if the root page doesn't get loaded with a depth of zero")
     void testRootPageNotLoading() throws InterruptedException {
         AsyncWebpageLoader webpageProcessor = new AsyncWebpageLoader(rootPage, 0, 1);
-        webpageProcessor.loadPagesRecursively();
+        webpageProcessor.loadPagesRecursivelyAndBlock();
 
         assertNull(rootPage.getPageTitle());
     }

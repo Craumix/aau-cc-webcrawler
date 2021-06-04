@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class AsyncWebpageLoader {
 
     private final ArrayList<Webpage> rootPages;
-    private final int remainingDepth;
+    private final int depth;
     private final ThreadPoolExecutor threadPool;
 
     /**
@@ -28,7 +28,7 @@ public class AsyncWebpageLoader {
      */
     public AsyncWebpageLoader(ArrayList<Webpage> rootPages, int depth, int threadCount) {
         this.rootPages = rootPages;
-        this.remainingDepth = depth - 1;
+        this.depth = depth;
         this.threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
     }
 
@@ -38,16 +38,8 @@ public class AsyncWebpageLoader {
      *
      * @throws InterruptedException when interrupted
      */
-    public void loadPagesRecursively() throws InterruptedException {
-        if (remainingDepth < 0)
-            return;
-
-        for (Webpage rootPage : rootPages) {
-            threadPool.execute(() -> {
-                rootPage.loadPage();
-                loadChildren(rootPage.getChildren(), remainingDepth);
-            });
-        }
+    public void loadPagesRecursivelyAndBlock() throws InterruptedException {
+        loadPagesRecursively(rootPages, depth);
 
         while (threadPool.getActiveCount() > 0)
             Thread.sleep(50);
@@ -62,14 +54,14 @@ public class AsyncWebpageLoader {
      * @param pages             list of pages to load
      * @param remainingDepth    the remaining depth for loading, will only load if > 0
      */
-    private void loadChildren(ArrayList<Webpage> pages, int remainingDepth) {
+    private void loadPagesRecursively(ArrayList<Webpage> pages, int remainingDepth) {
         if (remainingDepth < 1)
             return;
 
         for (Webpage page : pages) {
             threadPool.execute(() -> {
                 page.loadPage();
-                loadChildren(page.getChildren(), remainingDepth - 1);
+                loadPagesRecursively(page.getChildren(), remainingDepth - 1);
             });
         }
     }
