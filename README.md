@@ -36,7 +36,7 @@ Running Unit Tests:
 
 <hr>
 
-Building a runnable Jar:
+Building a runnable Jar:  
 `./gradlew jar`
 
 <hr>
