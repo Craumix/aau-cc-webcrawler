@@ -282,24 +282,22 @@ public class OptionsArgumentParserTest {
     @DisplayName("Test if the help dialog is correct")
     void testHelpDialog() {
         String expectedResult =
-                """
-                        usage: Webcrawler [-b] [-d <arg>] [-h] [-l <arg>] [-o <arg>] [-r] [-s] [-t
-                               <arg>] [-u <arg>]
-                         -b,--spoof-browser        If set, spoofs the UserAgent (in case some
-                                                   sites block the default UserAgent)
-                         -d,--max-depth <arg>      Specify the recursion depth for following
-                                                   links. Default: 2, Range 1-10
-                         -h,--help                 Open the help dialog
-                         -l,--max-links <arg>      Max amount of links to follow per page.
-                                                   Default: 100, Range: 1-inf
-                         -o,--output <arg>         Specify a Output File as alternative to stdout
-                         -r,--ignore-robots-txt    If set, ignores robots.txt
-                         -s,--omit-duplicates      If set, omits duplicate pages
-                         -t,--thread-count <arg>   Amount of threads to use, will increase CPU and
-                                                   Memory consumption. Default: 2, Range 1-1024
-                         -u,--urls <arg>           Specify the root urls for the crawler. Multiple
-                                                   urls must be comma separated
-                        """;
+                "usage: Webcrawler [-b] [-d <arg>] [-h] [-l <arg>] [-o <arg>] [-r] [-s] [-t\n" +
+                "       <arg>] [-u <arg>]\n" +
+                " -b,--spoof-browser        If set, spoofs the UserAgent (in case some\n" +
+                "                           sites block the default UserAgent)\n" +
+                " -d,--max-depth <arg>      Specify the recursion depth for following\n" +
+                "                           links. Default: 2, Range 1-10\n" +
+                " -h,--help                 Open the help dialog\n" +
+                " -l,--max-links <arg>      Max amount of links to follow per page.\n" +
+                "                           Default: 100, Range: 1-inf\n" +
+                " -o,--output <arg>         Specify a Output File as alternative to stdout\n" +
+                " -r,--ignore-robots-txt    If set, ignores robots.txt\n" +
+                " -s,--omit-duplicates      If set, omits duplicate pages\n" +
+                " -t,--thread-count <arg>   Amount of threads to use, will increase CPU and\n" +
+                "                           Memory consumption. Default: 2, Range 1-1024\n" +
+                " -u,--urls <arg>           Specify the root urls for the crawler. Multiple\n" +
+                "                           urls must be comma separated\n";
 
         assertEquals(expectedResult, parser.getHelpDialog());
     }
