@@ -1,6 +1,5 @@
 # AAU - Clean Code - Webcrawler Project
-[![CodeFactor](https://www.codefactor.io/repository/github/craumix/aau-cc-webcrawler/badge)](https://www.codefactor.io/repository/github/craumix/aau-cc-webcrawler)
-[![DeepSource](https://deepsource.io/gh/Craumix/aau-cc-webcrawler.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/Craumix/aau-cc-webcrawler/?ref=repository-badge)
+[![Java Gradle Test CI](https://github.com/craumix/aau-cc-webcrawler/actions/workflows/gradle-tests.yaml/badge.svg)](https://github.com/craumix/aau-cc-webcrawler/actions/workflows/gradle-tests.yaml)
 
 This is a Project for the Course "Clean Code" in the Summer Semester of 2021 at the [University of Klagenfurt](https://www.aau.at/en/). The Goal for this Project is to implement a Web-Crawler that has **at least** the following features:
 
