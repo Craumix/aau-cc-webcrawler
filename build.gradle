@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'jacoco'
+    id "org.sonarqube" version "3.2.0"
 }
 
 group 'org.example'
@@ -56,4 +57,12 @@ jar {
     from { configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) } } {
         exclude 'META-INF', 'META-INF/**'
     }
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "craumix_aau-cc-webcrawler"
+    property "sonar.organization", "craumix"
+    property "sonar.host.url", "https://sonarcloud.io"
+  }
 }
